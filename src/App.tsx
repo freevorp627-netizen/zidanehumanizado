@@ -46,8 +46,8 @@ export default function App() {
 
     if (notif.id !== 'facetime') {
       let key: any = 'notification';
-      if (notif.id === 'whatsapp') key = 'whatsapp';
-      if (notif.id === 'utmify') key = 'utmify';
+      if (notif.id.includes('whatsapp')) key = 'whatsapp';
+      if (notif.id.includes('utmify')) key = 'utmify';
       playSound(key);
     }
 
