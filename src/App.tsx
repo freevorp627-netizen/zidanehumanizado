@@ -343,10 +343,10 @@ export default function App() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-black font-sans">
+    <div className="flex items-center justify-center bg-black font-sans" style={{ minHeight: '100dvh' }}>
       {/* Main App Container - Mobile First */}
-      <div className="relative w-full h-screen max-w-[450px] bg-black shadow-2xl" style={{ overflow: screen === 'PRESELL' ? 'visible' : 'hidden' }}>
-        <div className="relative w-full h-full" style={{ overflow: screen === 'PRESELL' ? 'auto' : undefined }}>
+      <div className="relative w-full max-w-[450px] bg-black shadow-2xl" style={{ height: '100dvh', overflow: screen === 'PRESELL' ? 'auto' : 'hidden' }}>
+        <div className="relative w-full h-full">
           <AnimatePresence>
             {notification && (
               <NotificationBanner
