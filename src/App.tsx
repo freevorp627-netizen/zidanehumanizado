@@ -591,6 +591,24 @@ const PresellScreen = ({ onStart }: { onStart: () => void }) => {
   const [isUnlocking, setIsUnlocking] = useState(false);
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
+  const unlockAudio = () => {
+    // Toca um som silencioso/curto para liberar o contexto de áudio no mobile
+    const silentAudio = new Audio('https://raw.githubusercontent.com/anars/blank-audio/master/250-milliseconds-of-silence.mp3');
+    silentAudio.play().then(() => {
+      silentAudio.pause();
+      console.log("Audio context unlocked for mobile");
+    }).catch(e => console.log("Audio unlock failed:", e));
+
+    // Também resume o AudioContext se existir
+    const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+    if (AudioContext) {
+      const context = new AudioContext();
+      if (context.state === 'suspended') {
+        context.resume();
+      }
+    }
+  };
+
   useEffect(() => {
     // Carrega o SDK do SmartPlayer
     const s = document.createElement("script");
@@ -607,6 +625,7 @@ const PresellScreen = ({ onStart }: { onStart: () => void }) => {
   }, []);
 
   const handleStart = () => {
+    unlockAudio();
     setIsUnlocking(true);
     setTimeout(() => {
       onStart();
@@ -1117,10 +1136,30 @@ const AudioMessage = ({ sender, audioSrc, audioDuration, isZidane, autoPlay, onE
   useEffect(() => {
     if (!autoPlay || !audioSrc || !audioRef.current) return;
     const audio = audioRef.current;
-    const t = setTimeout(() => {
-      audio.play().then(() => setIsPlaying(true)).catch(() => { });
-    }, 300);
-    return () => { clearTimeout(t); audio.pause(); };
+    
+    const playAudio = async () => {
+      try {
+        await audio.play();
+        setIsPlaying(true);
+      } catch (e) {
+        console.log("Audio autoplay blocked by browser, waiting for user...");
+        // Em alguns casos, um pequeno delay resolve se o usuário acabou de trocar de tela
+        setTimeout(async () => {
+          try {
+            await audio.play();
+            setIsPlaying(true);
+          } catch (retryError) {
+            console.log("Audio still blocked after retry");
+          }
+        }, 500);
+      }
+    };
+
+    playAudio();
+    
+    return () => { 
+      audio.pause(); 
+    };
   }, [autoPlay, audioSrc]);
 
   const handleTimeUpdate = () => {
