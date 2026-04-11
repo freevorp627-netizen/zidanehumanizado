@@ -674,13 +674,6 @@ const PresellScreen = ({ onStart }: { onStart: () => void }) => {
   };
 
   useEffect(() => {
-    // Carrega o SDK do SmartPlayer com prioridade máxima
-    const s = document.createElement("script");
-    s.src = "https://scripts.converteai.net/lib/js/smartplayer-wc/v4/sdk.js";
-    s.async = true;
-    (s as any).fetchPriority = "high";
-    document.head.appendChild(s);
-
     // Define a URL do player diretamente para evitar problemas de carregamento no mobile
     if (iframeRef.current) {
       const baseUrl = 'https://scripts.converteai.net/ab14c621-69de-4bc7-ad1a-73b273a93155/players/69d6c18b4461c2c4b58520e1/v4/embed.html';
