@@ -1629,16 +1629,40 @@ const VideoPlayer = ({ src, isActive, onDoubleTap, onEnded }: { src: string; isA
   useEffect(() => {
     if (videoRef.current) {
       if (isActive && !isPaused) {
-        videoRef.current.play().catch(e => {
-          console.log("Video play failed (likely needs interaction):", e);
-          setIsMuted(true);
-          videoRef.current?.play();
-        });
+        const playVideo = async () => {
+          try {
+            await videoRef.current?.play();
+          } catch (e) {
+            console.log("Auto-play blocked, retrying muted...");
+            if (videoRef.current) {
+              videoRef.current.muted = true;
+              setIsMuted(true);
+              try {
+                await videoRef.current.play();
+              } catch (p) {
+                console.log("Persistent play block:", p);
+              }
+            }
+          }
+        };
+        playVideo();
       } else {
         videoRef.current.pause();
       }
     }
   }, [isActive, isPaused]);
+
+  // Special nudge for initial mount/visibility
+  useEffect(() => {
+    if (isActive && videoRef.current) {
+      const timer = setTimeout(() => {
+        if (videoRef.current?.paused && !isPaused) {
+          videoRef.current.play().catch(() => {});
+        }
+      }, 150);
+      return () => clearTimeout(timer);
+    }
+  }, [isActive]);
 
   useEffect(() => {
     if (!isActive) {
@@ -1670,9 +1694,15 @@ const VideoPlayer = ({ src, isActive, onDoubleTap, onEnded }: { src: string; isA
         loop={!onEnded}
         playsInline
         muted={isMuted}
+        autoPlay={isActive}
         className="w-full h-full object-cover"
         onContextMenu={(e) => e.preventDefault()}
         onEnded={onEnded}
+        onCanPlay={(e) => {
+          if (isActive && !isPaused) {
+            (e.target as HTMLVideoElement).play().catch(() => {});
+          }
+        }}
       />
 
       {/* Center Icons */}
@@ -1721,7 +1751,7 @@ const VideoPlayer = ({ src, isActive, onDoubleTap, onEnded }: { src: string; isA
 
 
 const InstagramReelsScreen = ({ onNext, time }: { onNext: () => void; time: string; key?: string }) => {
-  const [currentIndex, setCurrentIndex] = useState(3);
+  const [currentIndex, setCurrentIndex] = useState(0);
   const scrollRef = useRef<HTMLDivElement>(null);
   const [likedReels, setLikedReels] = useState<number[]>([]);
   const [followedReels, setFollowedReels] = useState<number[]>([]);
