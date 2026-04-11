@@ -13,6 +13,7 @@ import {
   Video,
   Volume2,
   UserPlus,
+  Navigation,
   X,
   Heart,
   MessageSquare,
@@ -54,17 +55,46 @@ interface Notification {
 // --- Components ---
 
 const StatusBar = ({ dark = false, time }: { dark?: boolean; time: string; key?: string }) => (
-  <div className={`flex justify-between items-center px-6 pt-4 pb-1 w-full z-50 ${dark ? 'text-black' : 'text-white'}`}>
-    <div className="font-bold text-[15px] tracking-tight">{time}</div>
+  <div className="flex justify-between items-center px-4 pt-4 pb-1 w-full z-50 bg-black text-white select-none font-[-apple-system,BlinkMacSystemFont,'Segoe_UI',Roboto,Helvetica,Arial,sans-serif]">
+    {/* Left: Time & Location */}
     <div className="flex items-center gap-1.5">
-      <Signal size={16} fill="currentColor" />
-      <span className="text-[13px] font-bold">5G</span>
-      <div className="relative flex items-center">
-        <div className="w-[25px] h-[12px] border border-white/40 rounded-[3px] flex items-center px-[1px]">
-          <div className="h-full bg-white rounded-[1px]" style={{ width: '57%' }} />
-          <span className="absolute inset-0 flex items-center justify-center text-[8px] font-black">57</span>
+      <div className="font-bold text-[17px] tracking-tight">{time}</div>
+      <Navigation size={12} className="fill-white text-white rotate-[90deg] ml-0.5" />
+    </div>
+
+    {/* Right: Signal, Wi-Fi & Battery */}
+    <div className="flex items-center gap-1.5">
+      {/* Signal */}
+      <div className="flex items-end gap-[1px] h-[10px] mb-[1px]">
+        <div className="w-[3px] h-[3px] bg-white rounded-[0.5px]" />
+        <div className="w-[3px] h-[5px] bg-white rounded-[0.5px]" />
+        <div className="w-[3px] h-[7.5px] bg-white/30 rounded-[0.5px]" />
+        <div className="w-[3px] h-[10px] bg-white/30 rounded-[0.5px]" />
+      </div>
+
+      {/* Wi-Fi */}
+      <Wifi size={16} className="text-white" />
+
+      {/* Battery with Inverted Masking */}
+      <div className="relative flex items-center ml-1">
+        <div className="w-[26px] h-[13.5px] rounded-[4.5px] relative border-[0.5px] border-white/20 overflow-hidden bg-white/20">
+          {/* White Fill (49%) */}
+          <div className="absolute top-0 left-0 bottom-0 bg-white" style={{ width: '49%' }} />
+          
+          {/* Percentage Text with color inversion effect */}
+          <div className="absolute inset-0 flex items-center justify-center">
+            {/* Layer 1: White text on grey part */}
+            <span className="text-[9.5px] font-black text-white leading-none mt-[0.5px]">49</span>
+            {/* Layer 2: Black text over white fill using clip-path */}
+            <span 
+              className="absolute inset-0 flex items-center justify-center text-[9.5px] font-black text-black leading-none mt-[0.5px]"
+              style={{ clipPath: 'inset(0 51% 0 0)' }}
+            >
+              49
+            </span>
+          </div>
         </div>
-        <div className="w-[1.5px] h-[4px] bg-white/40 rounded-r-full ml-[1px]" />
+        <div className="w-[1.6px] h-[4.5px] bg-white/40 rounded-r-[1.5px] ml-[0.5px]" />
       </div>
     </div>
   </div>
@@ -1680,7 +1710,7 @@ const VideoPlayer = ({ src, isActive, onDoubleTap, onEnded }: { src: string; isA
             if (videoRef.current) {
               videoRef.current.muted = true;
               setIsMuted(true);
-              videoRef.current.play().catch(() => {});
+              videoRef.current.play().catch(() => { });
             }
           }
         };
@@ -1719,7 +1749,7 @@ const VideoPlayer = ({ src, isActive, onDoubleTap, onEnded }: { src: string; isA
         if (videoRef.current.muted) {
           videoRef.current.muted = false;
           setIsMuted(false);
-          videoRef.current.play().catch(() => {});
+          videoRef.current.play().catch(() => { });
         } else {
           setIsPaused(!isPaused);
         }
@@ -1743,7 +1773,7 @@ const VideoPlayer = ({ src, isActive, onDoubleTap, onEnded }: { src: string; isA
         onPlay={handlePlay}
         onCanPlay={(e) => {
           if (isActive && !isPaused) {
-            (e.target as HTMLVideoElement).play().catch(() => {});
+            (e.target as HTMLVideoElement).play().catch(() => { });
           }
         }}
       />
@@ -1989,24 +2019,21 @@ const TikTokFeedScreen = ({ onEnterLive, time }: { onEnterLive: () => void; time
       video: 'https://pub-a772dcccd942498d933354c58ab4ce29.r2.dev/1.mp4',
       user: 'memesbr___433',
       avatar: 'https://i.ibb.co/2RXzWH7/image.png',
-      desc: 'KKKKKKKKKKKK desse jeito #meme #foryou',
-      memeCaption: 'EU TODA VEZ QUE VEJO ISSO KKKKK 🤡'
+      desc: 'KKKKKKKKKKKK desse jeito #meme #foryou'
     },
     {
       id: 2,
       video: 'https://pub-a772dcccd942498d933354c58ab4ce29.r2.dev/2.mp4',
       user: 'joaozinn321',
       avatar: 'https://i.ibb.co/Nd10ts1F/image.png',
-      desc: '.... #viraliza #foryoutiktok',
-      memeCaption: 'O MARKETING DIGITAL É ASSIM MESMO 😂'
+      desc: '.... #viraliza #foryoutiktok'
     },
     {
       id: 3,
       video: 'https://pub-a772dcccd942498d933354c58ab4ce29.r2.dev/3.mp4',
       user: 'almeidaai428',
       avatar: 'https://i.ibb.co/n8trsqKv/image.png',
-      desc: 'Acho melhor não convidar KKKKKKK',
-      memeCaption: 'NUNCA CONVIDE ESSA PESSOA 💀'
+      desc: 'Acho melhor não convidar KKKKKKK'
     },
     { id: 4, isLive: true, user: '@zidanerocha', viewers: '1.2k' },
   ];
@@ -2035,13 +2062,6 @@ const TikTokFeedScreen = ({ onEnterLive, time }: { onEnterLive: () => void; time
       }}>
         {tiktoks.map((tt, i) => (
           <div key={tt.id} className="h-full w-full snap-start relative">
-            {tt.memeCaption && (
-              <div className="absolute top-[10%] left-0 right-0 z-20 bg-white py-4 px-6 text-center shadow-xl">
-                <h3 className="text-black font-black text-[22px] leading-tight uppercase tracking-tighter">
-                  {tt.memeCaption}
-                </h3>
-              </div>
-            )}
             {tt.isLive ? (
               <div className="w-full h-full relative cursor-pointer">
                 <VideoPlayer
@@ -2215,7 +2235,7 @@ const TikTokLiveScreen = ({ onOpenCheckout, time, key }: { onOpenCheckout: () =>
         avatar: randomAvatar,
         badge: undefined
       };
-      return [...prev.slice(-15), newComment];
+      return [...prev.slice(-3), newComment];
     });
   };
 
@@ -2315,7 +2335,7 @@ const TikTokLiveScreen = ({ onOpenCheckout, time, key }: { onOpenCheckout: () =>
           badge: Math.random() > 0.8 ? `Nº ${Math.floor(Math.random() * 10)}` : undefined
         };
 
-        return [...prev.slice(-15), newComment];
+        return [...prev.slice(-3), newComment];
       });
 
       const nextDelay = 1800 + Math.random() * 3500;
@@ -2332,7 +2352,7 @@ const TikTokLiveScreen = ({ onOpenCheckout, time, key }: { onOpenCheckout: () =>
         if (videoRef.current) {
           videoRef.current.muted = true;
           setIsMuted(true);
-          videoRef.current.play().catch(() => {});
+          videoRef.current.play().catch(() => { });
         }
       });
     }
@@ -2350,7 +2370,7 @@ const TikTokLiveScreen = ({ onOpenCheckout, time, key }: { onOpenCheckout: () =>
     if (videoRef.current && videoRef.current.muted) {
       videoRef.current.muted = false;
       setIsMuted(false);
-      videoRef.current.play().catch(() => {});
+      videoRef.current.play().catch(() => { });
     }
   };
 
@@ -2359,7 +2379,9 @@ const TikTokLiveScreen = ({ onOpenCheckout, time, key }: { onOpenCheckout: () =>
       className="relative w-full h-full bg-black overflow-hidden"
       onClick={handleLiveTap}
     >
-      <StatusBar time={time} />
+      <div className="absolute top-0 left-0 right-0 z-[100]">
+        <StatusBar time={time} />
+      </div>
       {/* Live Video */}
       <div className="absolute inset-0 z-0">
         <video
@@ -2453,7 +2475,7 @@ const TikTokLiveScreen = ({ onOpenCheckout, time, key }: { onOpenCheckout: () =>
       </div>
 
       {/* Chat */}
-      <div className="absolute bottom-36 left-4 right-16 max-h-[360px] flex flex-col justify-end gap-2.5 z-20 mask-fade-top pointer-events-none">
+      <div className="absolute bottom-36 left-4 right-16 max-h-[360px] flex flex-col justify-end gap-[3px] z-20 mask-fade-top pointer-events-none">
         <AnimatePresence>
           {comments.map((c) => (
             <motion.div
