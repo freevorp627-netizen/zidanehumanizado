@@ -40,18 +40,6 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import { ShinyButton } from './components/ui/shiny-button';
 
-// --- Global Assets & Optimization ---
-const R2_AUDIO_BASE = 'https://pub-a772dcccd942498d933354c58ab4ce29.r2.dev/audios';
-const SOUND_URLS = {
-  notification: `${R2_AUDIO_BASE}/notificacao-audio.mp3`,
-  whatsapp: `${R2_AUDIO_BASE}/som-notificacao-whatsapp.mp3`,
-  utmify: `${R2_AUDIO_BASE}/som-notificacao-utmify.mp3`,
-  incoming_call: `${R2_AUDIO_BASE}/audio-ligacao.mp3`,
-  vibration: `${R2_AUDIO_BASE}/som-vibracao-ligacao.mp3`,
-  hangup: `${R2_AUDIO_BASE}/som-desligar-call.mp3`,
-  whatsapp_msg: `${R2_AUDIO_BASE}/mensagem-dentro-do-whatsapp.mp3`,
-};
-
 // --- Types ---
 type Screen = 'PRESELL' | 'LOCK' | 'HOME' | 'INCOMING_CALL' | 'FACETIME' | 'WHATSAPP_GROUP' | 'WHATSAPP_COMMUNITY' | 'INSTAGRAM_REELS' | 'TIKTOK_FEED' | 'TIKTOK_LIVE';
 
@@ -66,7 +54,7 @@ interface Notification {
 
 // --- Components ---
 
-const StatusBar = React.memo(({ dark = false, time }: { dark?: boolean; time: string; key?: string }) => (
+const StatusBar = ({ dark = false, time }: { dark?: boolean; time: string; key?: string }) => (
   <div className="flex justify-between items-center px-4 pt-4 pb-1 w-full z-50 bg-black text-white select-none font-[-apple-system,BlinkMacSystemFont,'Segoe_UI',Roboto,Helvetica,Arial,sans-serif]">
     {/* Left: Time & Location */}
     <div className="flex items-center gap-1.5">
@@ -112,7 +100,7 @@ const StatusBar = React.memo(({ dark = false, time }: { dark?: boolean; time: st
   </div>
 );
 
-const NotificationBanner = React.memo(({ notification, onDismiss }: { notification: Notification; onDismiss: () => void; key?: string }) => {
+const NotificationBanner = ({ notification, onDismiss }: { notification: Notification; onDismiss: () => void; key?: string }) => {
   return (
     <motion.div
       initial={{ y: -100, opacity: 0, scale: 0.95 }}
@@ -141,7 +129,7 @@ const NotificationBanner = React.memo(({ notification, onDismiss }: { notificati
   );
 };
 
-const AppUnavailableModal = React.memo(({ appName, onClose }: { appName: string; onClose: () => void }) => (
+const AppUnavailableModal = ({ appName, onClose }: { appName: string; onClose: () => void }) => (
   <div className="absolute inset-0 z-[200] flex items-center justify-center bg-black/40 backdrop-blur-[2px] p-10">
     <motion.div
       initial={{ scale: 1.2, opacity: 0 }}
@@ -163,6 +151,27 @@ const AppUnavailableModal = React.memo(({ appName, onClose }: { appName: string;
   </div>
 );
 
+// --- Audio Cache for Optimization ---
+const AUDIO_URLS = {
+  notification: 'https://pub-a772dcccd942498d933354c58ab4ce29.r2.dev/audios/notificacao-audio.mp3',
+  whatsapp: 'https://pub-a772dcccd942498d933354c58ab4ce29.r2.dev/audios/som-notificacao-whatsapp.mp3',
+  utmify: 'https://pub-a772dcccd942498d933354c58ab4ce29.r2.dev/audios/som-notificacao-utmify.mp3',
+  call: 'https://pub-a772dcccd942498d933354c58ab4ce29.r2.dev/audios/audio-ligacao.mp3',
+  vibration: 'https://pub-a772dcccd942498d933354c58ab4ce29.r2.dev/audios/som-vibracao-ligacao.mp3',
+  hangup: 'https://pub-a772dcccd942498d933354c58ab4ce29.r2.dev/audios/som-desligar-call.mp3',
+  wa_msg: 'https://pub-a772dcccd942498d933354c58ab4ce29.r2.dev/audios/mensagem-dentro-do-whatsapp.mp3'
+};
+
+const AUDIO_CACHE: Record<string, HTMLAudioElement> = {};
+
+// Pre-initialize audio objects
+if (typeof window !== 'undefined') {
+  Object.entries(AUDIO_URLS).forEach(([key, url]) => {
+    AUDIO_CACHE[key] = new Audio(url);
+    AUDIO_CACHE[key].load(); // Start buffering immediately
+  });
+}
+
 // --- Main App ---
 
 export default function App() {
@@ -174,30 +183,6 @@ export default function App() {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [unavailableApp, setUnavailableApp] = useState<string | null>(null);
   const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
-  const ringtoneRef = useRef<HTMLAudioElement | null>(null);
-  const vibrationRef = useRef<HTMLAudioElement | null>(null);
-  const notificationSoundRef = useRef<HTMLAudioElement | null>(null);
-
-  const audiosRef = useRef<Record<string, HTMLAudioElement>>({});
-
-  const playSound = (key: keyof typeof SOUND_URLS) => {
-    if (!audiosRef.current[key]) {
-      audiosRef.current[key] = new Audio(SOUND_URLS[key]);
-      if (key === 'incoming_call' || key === 'vibration') {
-        audiosRef.current[key].loop = true;
-      }
-    }
-    const audio = audiosRef.current[key];
-    audio.currentTime = 0;
-    audio.play().catch(e => console.log("Sound blocked:", e));
-  };
-
-  const stopSound = (key: keyof typeof SOUND_URLS) => {
-    if (audiosRef.current[key]) {
-      audiosRef.current[key].pause();
-      audiosRef.current[key].currentTime = 0;
-    }
-  };
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -225,11 +210,15 @@ export default function App() {
 
     // Play notification sound if not FaceTime
     if (notif.id !== 'facetime') {
-      let soundKey: keyof typeof SOUND_URLS = 'notification';
-      if (notif.id.includes('whatsapp')) soundKey = 'whatsapp';
-      if (notif.id.includes('utmify')) soundKey = 'utmify';
+      let audioKey = 'notification'; // Default for Instagram
+      if (notif.id === 'whatsapp') audioKey = 'whatsapp';
+      if (notif.id === 'utmify') audioKey = 'utmify';
 
-      playSound(soundKey);
+      const sound = AUDIO_CACHE[audioKey];
+      if (sound) {
+        sound.currentTime = 0;
+        sound.play().catch(e => console.log("Notif sound blocked:", e));
+      }
     }
 
     // Small delay for the visual so it syncs with the audio loading
@@ -244,16 +233,34 @@ export default function App() {
     const shouldRing = (screen === 'HOME' && notification?.id === 'facetime') || screen === 'INCOMING_CALL';
 
     if (shouldRing) {
-      playSound('incoming_call');
-      playSound('vibration');
+      const ringtone = AUDIO_CACHE.call;
+      const vibration = AUDIO_CACHE.vibration;
+
+      if (ringtone) {
+        ringtone.loop = true;
+        ringtone.play().catch(e => console.log("Audio play blocked:", e));
+      }
+      if (vibration) {
+        vibration.loop = true;
+        vibration.play().catch(e => console.log("Vibration play blocked:", e));
+      }
     } else {
-      stopSound('incoming_call');
-      stopSound('vibration');
+      const ringtone = AUDIO_CACHE.call;
+      const vibration = AUDIO_CACHE.vibration;
+
+      if (ringtone) {
+        ringtone.pause();
+        ringtone.currentTime = 0;
+      }
+      if (vibration) {
+        vibration.pause();
+        vibration.currentTime = 0;
+      }
     }
 
     return () => {
-      stopSound('incoming_call');
-      stopSound('vibration');
+      AUDIO_CACHE.call?.pause();
+      AUDIO_CACHE.vibration?.pause();
     };
   }, [screen, notification]);
 
@@ -635,19 +642,27 @@ export default function App() {
 
 // --- Screen Components ---
 
-const PresellScreen = React.memo(({ onStart }: { onStart: () => void }) => {
+const PresellScreen = ({ onStart }: { onStart: () => void }) => {
   const [isUnlocking, setIsUnlocking] = useState(false);
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
   const unlockAudio = () => {
-    // Toca um som silencioso/curto para liberar o contexto de áudio no mobile
+    // 1. Desbloqueia todos os sons do cache tocando um milissegundo de cada um
+    Object.values(AUDIO_CACHE).forEach(sound => {
+      sound.play().then(() => {
+        sound.pause();
+        sound.currentTime = 0;
+      }).catch(() => { });
+    });
+
+    // 2. Play silent audio as backup
     const silentAudio = new Audio('https://raw.githubusercontent.com/anars/blank-audio/master/250-milliseconds-of-silence.mp3');
     silentAudio.play().then(() => {
       silentAudio.pause();
-      console.log("Audio context unlocked for mobile");
+      console.log("Audio context fully unlocked");
     }).catch(e => console.log("Audio unlock failed:", e));
 
-    // Também resume o AudioContext se existir
+    // 3. Resume AudioContext
     const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
     if (AudioContext) {
       const context = new AudioContext();
@@ -774,7 +789,7 @@ const PresellScreen = React.memo(({ onStart }: { onStart: () => void }) => {
   );
 };
 
-const LockScreen = React.memo(({ onUnlock, time, date }: { onUnlock: () => void; time: string; date: string; key?: string }) => {
+const LockScreen = ({ onUnlock, time, date }: { onUnlock: () => void; time: string; date: string; key?: string }) => {
   return (
     <div
       className="relative w-full h-full bg-cover bg-center flex flex-col items-center"
@@ -851,7 +866,7 @@ const LockScreen = React.memo(({ onUnlock, time, date }: { onUnlock: () => void;
   );
 };
 
-const HomeScreen = React.memo(({ onOpenApp, time }: { onOpenApp: (app: string) => void; time: string; key?: string }) => {
+const HomeScreen = ({ onOpenApp, time }: { onOpenApp: (app: string) => void; time: string; key?: string }) => {
   const apps: { name: string; icon: string; color: string; badge?: string; padding?: string }[] = [
     { name: 'WhatsApp', icon: 'https://img.icons8.com/color/144/000000/whatsapp.png', color: 'bg-white', padding: 'p-0.5' },
     { name: 'Instagram', icon: 'https://img.icons8.com/color/144/000000/instagram-new.png', color: 'bg-white', padding: 'p-0.5' },
@@ -988,7 +1003,7 @@ const HomeScreen = React.memo(({ onOpenApp, time }: { onOpenApp: (app: string) =
   );
 };
 
-const IncomingCallScreen = React.memo(({ onAccept, time }: { onAccept: () => void; time: string; key?: string }) => {
+const IncomingCallScreen = ({ onAccept, time }: { onAccept: () => void; time: string; key?: string }) => {
   return (
     <div className="relative w-full h-full bg-[#1c1c1e] flex flex-col items-center">
       <StatusBar time={time} />
@@ -1024,14 +1039,17 @@ const IncomingCallScreen = React.memo(({ onAccept, time }: { onAccept: () => voi
   );
 };
 
-const FaceTimeScreen = React.memo(({ onEnd, onFinish, onNearEnd, time }: { onEnd: () => void; onFinish: () => void; onNearEnd?: () => void; time: string; key?: string }) => {
+const FaceTimeScreen = ({ onEnd, onFinish, onNearEnd, time }: { onEnd: () => void; onFinish: () => void; onNearEnd?: () => void; time: string; key?: string }) => {
   const [timer, setTimer] = useState(0);
   const [nearEndFired, setNearEndFired] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   const hangUp = () => {
-    const sound = new Audio(`${R2_AUDIO_BASE}/som-desligar-call.mp3`);
-    sound.play().catch(e => console.log("Hangup sound blocked:", e));
+    const sound = AUDIO_CACHE.hangup;
+    if (sound) {
+      sound.currentTime = 0;
+      sound.play().catch(e => console.log("Hangup sound blocked:", e));
+    }
     onFinish();
   };
 
@@ -1078,6 +1096,7 @@ const FaceTimeScreen = React.memo(({ onEnd, onFinish, onNearEnd, time }: { onEnd
           onEnded={hangUp}
           onTimeUpdate={handleTimeUpdate}
           className="w-full h-full object-cover opacity-100"
+          preload="auto"
           src="https://pub-a772dcccd942498d933354c58ab4ce29.r2.dev/WhatsApp%20Video%202026-04-08%20at%2015.57.00.mp4"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/60" />
@@ -1133,11 +1152,11 @@ const FaceTimeScreen = React.memo(({ onEnd, onFinish, onNearEnd, time }: { onEnd
 const SIMULATED_MESSAGES = [
   { id: 1, sender: 'Victor Ferreira', text: 'Cara fico impressionado o tanto que esse cara mente... Vive falando mal da galera do black mas o cara não fatura nem 1k dia kkkkk 🤣🤣🤣', type: 'text' },
   { id: 2, sender: 'Paulo Plinio', text: 'E a placa de faturamento dele kkk? tudo comprado na shopee , da pra ver a qualidade ruim 🤡', type: 'text' },
-  { id: 3, sender: 'Augusto Chagas', audioSrc: `${R2_AUDIO_BASE}/audiohater3.ogg`, audioDuration: '0:16', type: 'audio' },
-  { id: 4, sender: 'José Matheus', audioSrc: `${R2_AUDIO_BASE}/audiohater1.ogg`, audioDuration: '0:08', type: 'audio' },
-  { id: 5, sender: 'Felipe Almeida', audioSrc: `${R2_AUDIO_BASE}/audiohater2.ogg`, audioDuration: '0:11', type: 'audio' },
+  { id: 3, sender: 'Augusto Chagas', audioSrc: 'https://pub-a772dcccd942498d933354c58ab4ce29.r2.dev/audios/audiohater3.ogg', audioDuration: '0:16', type: 'audio' },
+  { id: 4, sender: 'José Matheus', audioSrc: 'https://pub-a772dcccd942498d933354c58ab4ce29.r2.dev/audios/audiohater1.ogg', audioDuration: '0:08', type: 'audio' },
+  { id: 5, sender: 'Felipe Almeida', audioSrc: 'https://pub-a772dcccd942498d933354c58ab4ce29.r2.dev/audios/audiohater2.ogg', audioDuration: '0:11', type: 'audio' },
   { id: 7, sender: 'Zidane Rocha', image: 'https://i.ibb.co/7dQzZGTB/image.png', type: 'image', verified: true },
-  { id: 75, sender: 'Zidane Rocha', audioSrc: `${R2_AUDIO_BASE}/audio-resposta-grupo.ogg`, audioDuration: '0:35', type: 'audio', verified: true },
+  { id: 75, sender: 'Zidane Rocha', audioSrc: 'https://pub-a772dcccd942498d933354c58ab4ce29.r2.dev/audios/audio-resposta-grupo.ogg', audioDuration: '0:35', type: 'audio', verified: true },
   { id: 8, sender: 'Zidane Rocha', text: 'Entra na minha comunidade fechada', link: 'Comunidade Zidane Rocha', type: 'link', verified: true },
 ];
 
@@ -1295,7 +1314,7 @@ const AudioMessage = ({ sender, audioSrc, audioDuration, isZidane, autoPlay, onE
   );
 };
 
-const WhatsAppGroupScreen = React.memo(({ onJoinCommunity, onImageClick, time }: { onJoinCommunity: () => void; onImageClick: (url: string) => void; time: string; key?: string }) => {
+const WhatsAppGroupScreen = ({ onJoinCommunity, onImageClick, time }: { onJoinCommunity: () => void; onImageClick: (url: string) => void; time: string; key?: string }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [messages, setMessages] = useState<any[]>([]);
   const [status, setStatus] = useState<string | null>(null);
@@ -1328,8 +1347,11 @@ const WhatsAppGroupScreen = React.memo(({ onJoinCommunity, onImageClick, time }:
       if (!isMounted) return;
 
       // Play notification sound
-      const sound = new Audio(`${R2_AUDIO_BASE}/mensagem-dentro-do-whatsapp.mp3`);
-      sound.play().catch(e => console.log("WA sound blocked:", e));
+      const sound = AUDIO_CACHE.wa_msg;
+      if (sound) {
+        sound.currentTime = 0;
+        sound.play().catch(e => console.log("WA sound blocked:", e));
+      }
 
       setMessages(prev => {
         const updated = [...prev, nextMsg];
@@ -1540,9 +1562,9 @@ const COMMUNITY_MESSAGES = [
   { id: 1, sender: 'Zidane Rocha', type: 'text', text: 'Pra vocês que tem dúvida se eu realmente trago resultado pros meus alunos, olha esses depoimentos abaixoo!! 👇', time: '16:05' },
   { id: 2, sender: 'Zidane Rocha', type: 'video', video: 'https://pub-a772dcccd942498d933354c58ab4ce29.r2.dev/WhatsApp%20Video%202026-04-08%20at%2016.06.50.mp4', time: '16:06' },
   { id: 3, sender: 'Zidane Rocha', type: 'video', video: 'https://pub-a772dcccd942498d933354c58ab4ce29.r2.dev/WhatsApp%20Video%202026-04-08%20at%2016.13.03.mp4', time: '16:13' },
-  { id: 4, sender: 'Zidane Rocha', type: 'audio', audioSrc: `${R2_AUDIO_BASE}/audio-resultado1.ogg`, time: '16:14' },
-  { id: 5, sender: 'Zidane Rocha', type: 'audio', audioSrc: `${R2_AUDIO_BASE}/audio-resultado2.ogg`, time: '16:15' },
-  { id: 6, sender: 'Zidane Rocha', type: 'audio', audioSrc: `${R2_AUDIO_BASE}/audio-resultado3.ogg`, time: '16:16' },
+  { id: 4, sender: 'Zidane Rocha', type: 'audio', audioSrc: 'https://pub-a772dcccd942498d933354c58ab4ce29.r2.dev/audios/audio-resultado1.ogg', time: '16:14' },
+  { id: 5, sender: 'Zidane Rocha', type: 'audio', audioSrc: 'https://pub-a772dcccd942498d933354c58ab4ce29.r2.dev/audios/audio-resultado2.ogg', time: '16:15' },
+  { id: 6, sender: 'Zidane Rocha', type: 'audio', audioSrc: 'https://pub-a772dcccd942498d933354c58ab4ce29.r2.dev/audios/audio-resultado3.ogg', time: '16:16' },
   { id: 7, sender: 'Zidane Rocha', type: 'image', image: 'https://i.ibb.co/KjpbL22K/image.png', time: '16:17' },
   { id: 8, sender: 'Zidane Rocha', type: 'image', image: 'https://i.ibb.co/67j1yR4W/image.png', time: '16:17' },
   { id: 9, sender: 'Zidane Rocha', type: 'image', image: 'https://i.ibb.co/rW7LTxn/image.png', time: '16:18' },
@@ -1550,7 +1572,7 @@ const COMMUNITY_MESSAGES = [
   { id: 11, sender: 'Zidane Rocha', type: 'image', image: 'https://i.ibb.co/DHsh3RFF/image.png', time: '16:19' },
 ];
 
-const WhatsAppCommunityScreen = React.memo(({ onNext, onImageClick, time }: { onNext: () => void; onImageClick: (url: string) => void; time: string; key?: string }) => {
+const WhatsAppCommunityScreen = ({ onNext, onImageClick, time }: { onNext: () => void; onImageClick: (url: string) => void; time: string; key?: string }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [activeAudioId, setActiveAudioId] = useState<number | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -1558,8 +1580,11 @@ const WhatsAppCommunityScreen = React.memo(({ onNext, onImageClick, time }: { on
   const triggerNext = () => {
     if (currentIndex < COMMUNITY_MESSAGES.length - 1) {
       // Play notification sound for new message inside WhatsApp
-      const sound = new Audio(`${R2_AUDIO_BASE}/mensagem-dentro-do-whatsapp.mp3`);
-      sound.play().catch(e => console.log("WA sound blocked:", e));
+      const sound = AUDIO_CACHE.wa_msg;
+      if (sound) {
+        sound.currentTime = 0;
+        sound.play().catch(e => console.log("WA sound blocked:", e));
+      }
 
       setCurrentIndex(prev => prev + 1);
     } else {
@@ -1571,8 +1596,11 @@ const WhatsAppCommunityScreen = React.memo(({ onNext, onImageClick, time }: { on
   useEffect(() => {
     // Play sound for the very first message if it's the beginning
     if (currentIndex === 0) {
-      const sound = new Audio(`${R2_AUDIO_BASE}/mensagem-dentro-do-whatsapp.mp3`);
-      sound.play().catch(e => console.log("WA sound blocked:", e));
+      const sound = AUDIO_CACHE.wa_msg;
+      if (sound) {
+        sound.currentTime = 0;
+        sound.play().catch(e => console.log("WA sound blocked:", e));
+      }
     }
 
     const currentMsg = COMMUNITY_MESSAGES[currentIndex];
@@ -1665,6 +1693,7 @@ const WhatsAppCommunityScreen = React.memo(({ onNext, onImageClick, time }: { on
                     src={msg.video}
                     className="w-full h-auto max-h-[350px] object-cover"
                     controls
+                    preload={idx === currentIndex ? "auto" : "metadata"}
                     autoPlay={idx === currentIndex}
                     onEnded={triggerNext}
                     playsInline
@@ -1708,7 +1737,7 @@ const WhatsAppCommunityScreen = React.memo(({ onNext, onImageClick, time }: { on
   );
 };
 
-const VideoPlayer = React.memo(({ src, isActive, onDoubleTap, onEnded }: { src: string; isActive: boolean; onDoubleTap?: () => void; onEnded?: () => void }) => {
+const VideoPlayer = ({ src, isActive, onDoubleTap, onEnded }: { src: string; isActive: boolean; onDoubleTap?: () => void; onEnded?: () => void }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isPaused, setIsPaused] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
@@ -1781,6 +1810,7 @@ const VideoPlayer = React.memo(({ src, isActive, onDoubleTap, onEnded }: { src: 
       <video
         ref={videoRef}
         src={src}
+        preload={isActive ? "auto" : "metadata"}
         loop={!onEnded}
         playsInline
         muted={isMuted}
@@ -1841,7 +1871,7 @@ const VideoPlayer = React.memo(({ src, isActive, onDoubleTap, onEnded }: { src: 
 };
 
 
-const InstagramReelsScreen = React.memo(({ onNext, time }: { onNext: () => void; time: string; key?: string }) => {
+const InstagramReelsScreen = ({ onNext, time }: { onNext: () => void; time: string; key?: string }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const scrollRef = useRef<HTMLDivElement>(null);
   const [likedReels, setLikedReels] = useState<number[]>([]);
@@ -2022,7 +2052,7 @@ const InstagramReelsScreen = React.memo(({ onNext, time }: { onNext: () => void;
   );
 };
 
-const TikTokFeedScreen = React.memo(({ onEnterLive, time }: { onEnterLive: () => void; time: string; key?: string }) => {
+const TikTokFeedScreen = ({ onEnterLive, time }: { onEnterLive: () => void; time: string; key?: string }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [likedTiktoks, setLikedTiktoks] = useState<number[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -2227,7 +2257,7 @@ const TikTokFeedScreen = React.memo(({ onEnterLive, time }: { onEnterLive: () =>
   );
 };
 
-const TikTokLiveScreen = React.memo(({ onOpenCheckout, time, key }: { onOpenCheckout: () => void; time: string; key?: string }) => {
+const TikTokLiveScreen = ({ onOpenCheckout, time, key }: { onOpenCheckout: () => void; time: string; key?: string }) => {
   const [showShop, setShowShop] = useState(false);
   const [likes, setLikes] = useState(100000);
   const [viewers, setViewers] = useState(245);
