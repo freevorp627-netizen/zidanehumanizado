@@ -325,7 +325,7 @@ export default function App() {
             return {
               id: 'whatsapp',
               app: 'WhatsApp',
-              icon: <img src="https://img.icons8.com/color/144/000000/whatsapp.png" className="w-full h-full p-0.5" referrerPolicy="no-referrer" />,
+              icon: <img src="https://img.icons8.com/color/144/000000/whatsapp.png" alt="WhatsApp Icon" className="w-full h-full p-0.5" referrerPolicy="no-referrer" />,
               title: 'WhatsApp',
               message: 'Você foi adicionado no grupo HATERS ZIDANE',
               delay: 300,
@@ -341,7 +341,7 @@ export default function App() {
             return {
               id: 'instagram',
               app: 'Instagram',
-              icon: <img src="https://img.icons8.com/color/144/000000/instagram-new.png" className="w-full h-full p-0.5" referrerPolicy="no-referrer" />,
+              icon: <img src="https://img.icons8.com/color/144/000000/instagram-new.png" alt="Instagram Icon" className="w-full h-full p-0.5" referrerPolicy="no-referrer" />,
               title: 'Instagram',
               message: '@ana.kruger te enviou um reel',
               delay: 2000,
@@ -357,7 +357,7 @@ export default function App() {
             return {
               id: 'utmify',
               app: 'Utmify',
-              icon: <img src="https://i.ibb.co/93HhFt0L/image.png" className="w-full h-full object-cover rounded-md" referrerPolicy="no-referrer" />,
+              icon: <img src="https://i.ibb.co/93HhFt0L/image.png" alt="Utmify Icon" className="w-full h-full object-cover rounded-md" referrerPolicy="no-referrer" />,
               title: 'Utmify',
               message: 'Parabéns! Hoje você está no prejuízo de R$2.914, continue com a sua dopamina diária 🎮',
               delay: 2000,
@@ -487,7 +487,7 @@ export default function App() {
                     triggerNotification({
                       id: 'whatsapp',
                       app: 'WhatsApp',
-                      icon: <img src="https://img.icons8.com/color/144/000000/whatsapp.png" className="w-full h-full p-0.5" referrerPolicy="no-referrer" />,
+                      icon: <img src="https://img.icons8.com/color/144/000000/whatsapp.png" alt="WhatsApp Icon" className="w-full h-full p-0.5" referrerPolicy="no-referrer" />,
                       title: 'WhatsApp',
                       message: 'Você foi adicionado no grupo HATERS ZIDANE',
                       action: () => {
@@ -526,7 +526,7 @@ export default function App() {
                     triggerNotification({
                       id: 'instagram',
                       app: 'Instagram',
-                      icon: <img src="https://img.icons8.com/color/144/000000/instagram-new.png" className="w-full h-full p-0.5" referrerPolicy="no-referrer" />,
+                      icon: <img src="https://img.icons8.com/color/144/000000/instagram-new.png" alt="Instagram Icon" className="w-full h-full p-0.5" referrerPolicy="no-referrer" />,
                       title: 'Instagram',
                       message: '@ana.kruger te enviou um reel',
                       action: () => {
@@ -562,7 +562,7 @@ export default function App() {
                     triggerNotification({
                       id: 'utmify-1',
                       app: 'Utmify',
-                      icon: <div className="w-full h-full overflow-hidden rounded-md bg-black"><img src="https://i.ibb.co/Cpx6fH1G/image.png" className="w-full h-full object-cover" /></div>,
+                      icon: <div className="w-full h-full overflow-hidden rounded-md bg-black"><img src="https://i.ibb.co/Cpx6fH1G/image.png" alt="Utmify Icon" className="w-full h-full object-cover" /></div>,
                       title: 'Pagamento Aprovado',
                       message: 'Parabéns hoje você está no prejuízo de R$2.914, continue com a sua dopamina diária 🤡',
                     });
@@ -624,6 +624,7 @@ export default function App() {
                 </button>
                 <img
                   src={fullscreenImage}
+                  alt="Fullscreen view"
                   className="w-full max-h-[85vh] object-contain rounded-lg shadow-2xl"
                   referrerPolicy="no-referrer"
                   onClick={(e) => e.stopPropagation()}
@@ -960,7 +961,7 @@ const HomeScreen = ({ onOpenApp, time }: { onOpenApp: (app: string) => void; tim
                   </div>
                 </div>
               ) : (
-                <img src={app.icon} className={`w-full h-full object-contain ${app.padding || 'p-2'}`} referrerPolicy="no-referrer" />
+                <img src={app.icon} alt={app.name} className={`w-full h-full object-contain ${app.padding || 'p-2'}`} referrerPolicy="no-referrer" />
               )}
               {app.badge && (
                 <div className="absolute -top-1.5 -right-1.5 bg-ios-red text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full border-2 border-transparent min-w-[20px] text-center">
@@ -990,7 +991,7 @@ const HomeScreen = ({ onOpenApp, time }: { onOpenApp: (app: string) => void; tim
               onClick={() => onOpenApp(app.name)}
               className={`w-[58px] h-[58px] ${app.color} rounded-[13px] flex items-center justify-center shadow-lg overflow-hidden`}
             >
-              <img src={app.icon} className={`w-full h-full object-contain ${app.padding || 'p-2'}`} referrerPolicy="no-referrer" />
+              <img src={app.icon} alt={app.name} className={`w-full h-full object-contain ${app.padding || 'p-2'}`} referrerPolicy="no-referrer" />
             </motion.div>
             {app.badge && (
               <div className="absolute -top-1.5 -right-1.5 bg-ios-red text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full border-2 border-transparent min-w-[20px] text-center">
@@ -1305,7 +1306,7 @@ const AudioMessage = ({ sender, audioSrc, audioDuration, isZidane, autoPlay, onE
 
         {/* Avatar Area */}
         <div className="w-10 h-10 rounded-full relative shrink-0 ml-1">
-          <img src={SENDER_AVATARS[sender] || `https://picsum.photos/seed/${sender}/100/100`} className="w-full h-full object-cover rounded-full" referrerPolicy="no-referrer" />
+          <img src={SENDER_AVATARS[sender] || `https://picsum.photos/seed/${sender}/100/100`} alt={`${sender} avatar`} className="w-full h-full object-cover rounded-full" referrerPolicy="no-referrer" />
           <div className="absolute -bottom-1 -left-1">
             <Mic className="text-[#3dbed1]" size={14} fill="currentColor" />
           </div>
@@ -1404,7 +1405,7 @@ const WhatsAppGroupScreen = ({ onJoinCommunity, onImageClick, time }: { onJoinCo
       {/* Header */}
       <div className="bg-[#1f2c34] pt-2 pb-2 px-3 flex items-center gap-2">
         <div className="w-10 h-10 rounded-full bg-neutral-600 overflow-hidden">
-          <img src="https://i.ibb.co/YFHnq4tG/image.png" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+          <img src="https://i.ibb.co/YFHnq4tG/image.png" alt="Group Avatar" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
         </div>
         <div className="flex-1 min-w-0">
           <h3 className="font-bold text-[15px] text-white truncate">Zidane Mentiroso</h3>
@@ -1453,7 +1454,7 @@ const WhatsAppGroupScreen = ({ onJoinCommunity, onImageClick, time }: { onJoinCo
             <div key={msg.id} className={`flex ${isZidane ? 'justify-end' : 'justify-start'} w-full gap-1.5`}>
               {!isZidane && msg.type !== 'link' && (
                 <div className="w-8 h-8 rounded-full overflow-hidden shrink-0 mt-0.5">
-                  <img src={SENDER_AVATARS[msg.sender] || 'https://i.ibb.co/wXXQQ9c/image.png'} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                  <img src={SENDER_AVATARS[msg.sender] || 'https://i.ibb.co/wXXQQ9c/image.png'} alt={`${msg.sender} avatar`} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                 </div>
               )}
               <div
@@ -1483,7 +1484,7 @@ const WhatsAppGroupScreen = ({ onJoinCommunity, onImageClick, time }: { onJoinCo
                     onClick={() => onImageClick(msg.image!)}
                     className="rounded-[10px] overflow-hidden relative cursor-pointer active:opacity-90"
                   >
-                    <img src={msg.image} className="w-full h-auto max-h-[350px] object-cover" referrerPolicy="no-referrer" />
+                    <img src={msg.image} alt="Message attachment" className="w-full h-auto max-h-[350px] object-cover" referrerPolicy="no-referrer" />
                     <div className="absolute bottom-1 right-2 rounded flex items-center justify-center bg-black/30 px-1 py-0.5">
                       <span className="text-[10px] text-white leading-none">16:33</span>
                     </div>
@@ -1512,7 +1513,7 @@ const WhatsAppGroupScreen = ({ onJoinCommunity, onImageClick, time }: { onJoinCo
                     <div className="p-4 flex items-center gap-4">
                       <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center shrink-0 relative shadow-inner">
                         <div className="flex flex-col items-center">
-                          <img src="https://img.icons8.com/color/144/000000/whatsapp.png" className="w-6 h-6" referrerPolicy="no-referrer" />
+                          <img src="https://img.icons8.com/color/144/000000/whatsapp.png" alt="WhatsApp Icon" className="w-6 h-6" referrerPolicy="no-referrer" />
                           <span className="text-[8px] font-bold text-[#25D366] mt-0.5">WhatsApp</span>
                         </div>
                       </div>
@@ -1638,7 +1639,7 @@ const WhatsAppCommunityScreen = ({ onNext, onImageClick, time }: { onNext: () =>
       {/* Header */}
       <div className="bg-[#1f2c34] pt-2 pb-3 px-4 flex items-center gap-3">
         <div className="w-10 h-10 rounded-full bg-neutral-600 overflow-hidden">
-          <img src="https://i.ibb.co/p69twTYp/image.png" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+          <img src="https://i.ibb.co/p69twTYp/image.png" alt="Community Avatar" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
         </div>
         <div className="flex-1">
           <h3 className="font-bold text-[15px] flex items-center gap-1">
