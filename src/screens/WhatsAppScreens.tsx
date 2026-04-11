@@ -4,14 +4,16 @@ import { StatusBar } from '../components/layout';
 import { AudioMessage } from '../components/AudioMessage';
 import { useSound } from '../hooks/useSound';
 
+const R2_AUDIO_BASE = 'https://pub-a772dcccd942498d933354c58ab4ce29.r2.dev/audios';
+
 const SIMULATED_MESSAGES = [
   { id: 1, sender: 'Victor Ferreira', text: 'Cara fico impressionado o tanto que esse cara mente... Vive falando mal da galera do black mas o cara não fatura nem 1k dia kkkkk 🤣🤣🤣', type: 'text' },
   { id: 2, sender: 'Paulo Plinio', text: 'E a placa de faturamento dele kkk? tudo comprado na shopee , da pra ver a qualidade ruim 🤡', type: 'text' },
-  { id: 3, sender: 'Augusto Chagas', audioSrc: '/audiohater3.ogg', audioDuration: '0:16', type: 'audio' },
-  { id: 4, sender: 'José Matheus', audioSrc: '/audiohater1.ogg', audioDuration: '0:08', type: 'audio' },
-  { id: 5, sender: 'Felipe Almeida', audioSrc: '/audiohater2.ogg', audioDuration: '0:11', type: 'audio' },
+  { id: 3, sender: 'Augusto Chagas', audioSrc: `${R2_AUDIO_BASE}/audiohater3.ogg`, audioDuration: '0:16', type: 'audio' },
+  { id: 4, sender: 'José Matheus', audioSrc: `${R2_AUDIO_BASE}/audiohater1.ogg`, audioDuration: '0:08', type: 'audio' },
+  { id: 5, sender: 'Felipe Almeida', audioSrc: `${R2_AUDIO_BASE}/audiohater2.ogg`, audioDuration: '0:11', type: 'audio' },
   { id: 7, sender: 'Zidane Rocha', image: 'https://i.ibb.co/7dQzZGTB/image.png', type: 'image', verified: true },
-  { id: 75, sender: 'Zidane Rocha', audioSrc: '/audio-resposta-grupo.ogg', audioDuration: '0:35', type: 'audio', verified: true },
+  { id: 75, sender: 'Zidane Rocha', audioSrc: `${R2_AUDIO_BASE}/audio-resposta-grupo.ogg`, audioDuration: '0:35', type: 'audio', verified: true },
   { id: 8, sender: 'Zidane Rocha', text: 'Entra na minha comunidade fechada', link: 'Comunidade Zidane Rocha', type: 'link', verified: true },
 ];
 
@@ -127,9 +129,9 @@ const COMMUNITY_MESSAGES = [
   { id: 1, sender: 'Zidane Rocha', type: 'text', text: 'Pra vocês que tem dúvida se eu realmente trago resultado pros meus alunos, olha esses depoimentos abaixoo!! 👇', time: '16:05' },
   { id: 2, sender: 'Zidane Rocha', type: 'video', video: 'https://pub-a772dcccd942498d933354c58ab4ce29.r2.dev/WhatsApp%20Video%202026-04-08%20at%2016.06.50.mp4', time: '16:06' },
   { id: 3, sender: 'Zidane Rocha', type: 'video', video: 'https://pub-a772dcccd942498d933354c58ab4ce29.r2.dev/WhatsApp%20Video%202026-04-08%20at%2016.13.03.mp4', time: '16:13' },
-  { id: 4, sender: 'Zidane Rocha', type: 'audio', audioSrc: 'audio-resultado1.ogg', time: '16:14' },
-  { id: 5, sender: 'Zidane Rocha', type: 'audio', audioSrc: 'audio-resultado2.ogg', time: '16:15' },
-  { id: 6, sender: 'Zidane Rocha', type: 'audio', audioSrc: 'audio-resultado3.ogg', time: '16:16' },
+  { id: 4, sender: 'Zidane Rocha', type: 'audio', audioSrc: `${R2_AUDIO_BASE}/audio-resultado1.ogg`, time: '16:14' },
+  { id: 5, sender: 'Zidane Rocha', type: 'audio', audioSrc: `${R2_AUDIO_BASE}/audio-resultado2.ogg`, time: '16:15' },
+  { id: 6, sender: 'Zidane Rocha', type: 'audio', audioSrc: `${R2_AUDIO_BASE}/audio-resultado3.ogg`, time: '16:16' },
 ];
 
 export const WhatsAppCommunityScreen = React.memo(({ onNext, onImageClick, time }: { onNext: () => void; onImageClick: (url: string) => void; time: string }) => {

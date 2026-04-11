@@ -1,13 +1,15 @@
 import { useRef, useCallback } from 'react';
 
+const R2_BASE_URL = 'https://pub-a772dcccd942498d933354c58ab4ce29.r2.dev/audios';
+
 const SOUNDS = {
-  notification: '/notificacao-audio.mp3',
-  whatsapp: '/som-notificacao-whatsapp.mp3',
-  utmify: '/som-notificacao-utmify.mp3',
-  incoming_call: '/audio-ligacao.mp3',
-  vibration: '/som-vibracao-ligacao.mp3',
-  hangup: '/som-desligar-call.mp3',
-  whatsapp_msg: '/mensagem-dentro-do-whatsapp.mp3',
+  notification: `${R2_BASE_URL}/notificacao-audio.mp3`,
+  whatsapp: `${R2_BASE_URL}/som-notificacao-whatsapp.mp3`,
+  utmify: `${R2_BASE_URL}/som-notificacao-utmify.mp3`,
+  incoming_call: `${R2_BASE_URL}/audio-ligacao.mp3`,
+  vibration: `${R2_BASE_URL}/som-vibracao-ligacao.mp3`,
+  hangup: `${R2_BASE_URL}/som-desligar-call.mp3`,
+  whatsapp_msg: `${R2_BASE_URL}/mensagem-dentro-do-whatsapp.mp3`,
 };
 
 export const useSound = () => {
