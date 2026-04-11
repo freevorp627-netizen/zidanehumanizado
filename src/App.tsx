@@ -141,7 +141,19 @@ export default function App() {
           {screen === 'LOCK' && <motion.div key="l" className="w-full h-full" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><LockScreen onUnlock={() => { setIsUnlocked(true); setScreen('HOME'); }} time={timeString} date={dateString} /></motion.div>}
           {screen === 'HOME' && <motion.div key="h" className="w-full h-full" initial={{ opacity: 0, scale: 1.1 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} transition={{ duration: 0.4 }}><HomeScreen onOpenApp={setUnavailableApp} time={timeString} /></motion.div>}
           {screen === 'INCOMING_CALL' && <motion.div key="ic" className="w-full h-full" initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}><IncomingCallScreen onAccept={() => { setNotification(null); setScreen('FACETIME'); }} time={timeString} /></motion.div>}
-          {screen === 'FACETIME' && <motion.div key="f" className="w-full h-full" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.8 }}><FaceTimeScreen onFinish={() => { setNotification(null); setScreen('WHATSAPP_GROUP'); setCurrentStep(2); }} time={timeString} /></motion.div>}
+          {screen === 'FACETIME' && (
+            <motion.div key="f" className="w-full h-full" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.8 }}>
+              <FaceTimeScreen 
+                onFinish={() => { setNotification(null); setScreen('WHATSAPP_GROUP'); setCurrentStep(2); }} 
+                onNearEnd={() => triggerNotification({
+                  id: 'whatsapp', app: 'WhatsApp', title: 'WhatsApp', message: 'Você foi adicionado no grupo HATERS ZIDANE',
+                  icon: <img src="https://img.icons8.com/color/144/000000/whatsapp.png" />,
+                  action: () => { setNotification(null); setScreen('WHATSAPP_GROUP'); setCurrentStep(2); }
+                })}
+                time={timeString} 
+              />
+            </motion.div>
+          )}
           {screen === 'WHATSAPP_GROUP' && <motion.div key="wg" className="w-full h-full" initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '-100%' }}><WhatsAppGroupScreen onJoinCommunity={handleJoinCommunity} onImageClick={setFullscreenImage} time={timeString} /></motion.div>}
           {screen === 'WHATSAPP_COMMUNITY' && <motion.div key="wc" className="w-full h-full" initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '-100%' }}><WhatsAppCommunityScreen onNext={handleNextFromCommunity} onImageClick={setFullscreenImage} time={timeString} /></motion.div>}
           {screen === 'INSTAGRAM_REELS' && <motion.div key="ir" className="w-full h-full" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}><InstagramReelsScreen onNext={handleNextFromInstagram} time={timeString} /></motion.div>}
