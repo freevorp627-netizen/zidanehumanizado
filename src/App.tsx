@@ -1136,7 +1136,7 @@ const AudioMessage = ({ sender, audioSrc, audioDuration, isZidane, autoPlay, onE
   useEffect(() => {
     if (!autoPlay || !audioSrc || !audioRef.current) return;
     const audio = audioRef.current;
-    
+
     const playAudio = async () => {
       try {
         await audio.play();
@@ -1156,9 +1156,9 @@ const AudioMessage = ({ sender, audioSrc, audioDuration, isZidane, autoPlay, onE
     };
 
     playAudio();
-    
-    return () => { 
-      audio.pause(); 
+
+    return () => {
+      audio.pause();
     };
   }, [autoPlay, audioSrc]);
 
@@ -1672,39 +1672,31 @@ const VideoPlayer = ({ src, isActive, onDoubleTap, onEnded }: { src: string; isA
     if (videoRef.current) {
       if (isActive && !isPaused) {
         const playVideo = async () => {
+          if (!videoRef.current) return;
           try {
-            await videoRef.current?.play();
+            await videoRef.current.play();
           } catch (e) {
-            console.log("Auto-play blocked, retrying muted...");
+            console.log("Autoplay blocked, muting...");
             if (videoRef.current) {
               videoRef.current.muted = true;
               setIsMuted(true);
-              try {
-                await videoRef.current.play();
-              } catch (p) {
-                console.log("Persistent play block:", p);
-              }
+              videoRef.current.play().catch(() => {});
             }
           }
         };
-        playVideo();
+        const t = setTimeout(playVideo, 100);
+        return () => clearTimeout(t);
       } else {
         videoRef.current.pause();
       }
     }
   }, [isActive, isPaused]);
 
-  // Special nudge for initial mount/visibility
-  useEffect(() => {
-    if (isActive && videoRef.current) {
-      const timer = setTimeout(() => {
-        if (videoRef.current?.paused && !isPaused) {
-          videoRef.current.play().catch(() => {});
-        }
-      }, 150);
-      return () => clearTimeout(timer);
+  const handlePlay = () => {
+    if (videoRef.current) {
+      setIsMuted(videoRef.current.muted);
     }
-  }, [isActive]);
+  };
 
   useEffect(() => {
     if (!isActive) {
@@ -1723,7 +1715,15 @@ const VideoPlayer = ({ src, isActive, onDoubleTap, onEnded }: { src: string; isA
       setShowHeart(true);
       setTimeout(() => setShowHeart(false), 800);
     } else {
-      setIsPaused(!isPaused);
+      if (videoRef.current) {
+        if (videoRef.current.muted) {
+          videoRef.current.muted = false;
+          setIsMuted(false);
+          videoRef.current.play().catch(() => {});
+        } else {
+          setIsPaused(!isPaused);
+        }
+      }
     }
     lastTap.current = now;
   };
@@ -1740,6 +1740,7 @@ const VideoPlayer = ({ src, isActive, onDoubleTap, onEnded }: { src: string; isA
         className="w-full h-full object-cover"
         onContextMenu={(e) => e.preventDefault()}
         onEnded={onEnded}
+        onPlay={handlePlay}
         onCanPlay={(e) => {
           if (isActive && !isPaused) {
             (e.target as HTMLVideoElement).play().catch(() => {});
