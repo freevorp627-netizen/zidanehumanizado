@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Imersão 100x - Zidane Rocha</title>
+
+  <!-- Meta Pixel Code -->
+  <script>
+  !function(f,b,e,v,n,t,s)
+  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+  n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];
+  s.parentNode.insertBefore(t,s)}(window, document,'script',
+  'https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init', '1484618836407876');
+  fbq('track', 'PageView');
+  </script>
+  <!-- End Meta Pixel Code -->
+
+  <!-- Utmify Pixel Start -->
+  <script>
+    window.pixelId = "69d9d423bbb863f46e8301ef";
+    var a = document.createElement("script");
+    a.setAttribute("async", "");
+    a.setAttribute("defer", "");
+    a.setAttribute("src", "https://cdn.utmify.com.br/scripts/pixel/pixel.js");
+    document.head.appendChild(a);
+  </script>
+  <!-- Utmify Pixel End -->
+
+  <!-- Proteções Anti-Clonagem / Anti-Scraping Start -->
+  <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
+  <style>
+    body {
+      -webkit-user-select: none; /* Safari */
+      -ms-user-select: none; /* IE 10 and IE 11 */
+      user-select: none; /* Standard syntax */
+    }
+    img, video {
+      -webkit-user-drag: none;
+      pointer-events: none;
+    }
+  </style>
+  <script>
+    // 1. Bloqueia botão direito (Context Menu)
+    document.addEventListener('contextmenu', event => event.preventDefault());
+
+    // 2. Bloqueia atalhos de devtools (F12, Ctrl+Shift+I, Ctrl+U, Ctrl+S)
+    document.onkeydown = function(e) {
+      if (e.keyCode == 123) { return false; } // F12
+      if (e.ctrlKey && e.shiftKey && e.keyCode == 73) { return false; } // Ctrl+Shift+I
+      if (e.ctrlKey && e.shiftKey && e.keyCode == 74) { return false; } // Ctrl+Shift+J
+      if (e.ctrlKey && e.shiftKey && e.keyCode == 67) { return false; } // Ctrl+Shift+C
+      if (e.ctrlKey && e.keyCode == 85) { return false; } // Ctrl+U (View Source)
+      if (e.ctrlKey && e.keyCode == 83) { e.preventDefault(); return false; } // Ctrl+S (Save)
+      if (e.ctrlKey && e.keyCode == 80) { e.preventDefault(); return false; } // Ctrl+P (Print)
+    };
+
+    // 3. Detecta ferramentas de automação (ex: Puppeteer, Selenium)
+    if (navigator.webdriver) {
+      document.documentElement.innerHTML = '';
+      window.location.replace('about:blank');
+    }
+
+    // 4. Anti-Debugger (Trava o console do navegador se tentarem inspecionar)
+    setInterval(function() {
+      (function() {
+        return false;
+      }
+      ['constructor']('debugger')
+      ['call']());
+    }, 1000);
+
+    // 5. Bloqueio de Execução Local (Se baixarem o site e abrirem no PC 'file://')
+    if (window.location.protocol === 'file:') {
+      alert('Site protegido contra clonagem.');
+      document.documentElement.innerHTML = '';
+      window.location.replace('about:blank');
+    }
+  </script>
+  <!-- Proteções Anti-Clonagem / Anti-Scraping End -->
+</head>
+
+<body oncontextmenu="return false;" onselectstart="return false;" ondragstart="return false;" ondrop="return false;">
+  <noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=1484618836407876&ev=PageView&noscript=1" /></noscript>
+  <div id="root"></div>
+  <script type="module" src="/src/main.tsx"></script>
+</body>
+
+</html>
