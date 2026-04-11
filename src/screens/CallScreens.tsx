@@ -22,15 +22,18 @@ export const IncomingCallScreen = React.memo(({ onAccept, time }: IncomingCallPr
 
       <div className="z-10 w-full px-12 flex justify-between items-center mt-auto mb-20">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-[64px] h-[64px] rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center text-white/40 cursor-not-allowed">
+          <motion.div
+            whileTap={{ scale: 0.95 }}
+            className="w-[64px] h-[64px] rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center text-white/40 cursor-not-allowed"
+          >
             <Phone size={28} className="rotate-[135deg]" fill="currentColor" />
-          </div>
+          </motion.div>
           <span className="text-[13px] font-medium text-white/40">Recusar</span>
         </div>
 
         <div className="flex flex-col items-center gap-3">
           <motion.button
-            whileTap={{ scale: 0.9 }}
+            whileTap={{ scale: 0.95 }}
             onClick={onAccept}
             className="w-[64px] h-[64px] rounded-full bg-ios-green flex items-center justify-center text-white shadow-lg"
           >
@@ -124,9 +127,12 @@ export const FaceTimeScreen = React.memo(({ onFinish, onNearEnd, time }: FaceTim
         <div className="grid grid-cols-3 gap-y-6 gap-x-2">
           {controls.map((control, index) => (
             <div key={control.name} className="flex flex-col items-center gap-2">
-              <button className={`w-[56px] h-[56px] rounded-full flex items-center justify-center shadow-lg ${control.color}`}>
+              <motion.button
+                whileTap={{ scale: 0.92, transition: { duration: 0.1 } }}
+                className={`w-[56px] h-[56px] rounded-full flex items-center justify-center shadow-lg ${control.color}`}
+              >
                 {control.icon}
-              </button>
+              </motion.button>
               <span className="text-[11px] font-medium text-white/90 text-center leading-tight">
                 {control.name.split(' ').map((word, i) => <div key={i}>{word}</div>)}
               </span>
