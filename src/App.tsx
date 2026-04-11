@@ -735,7 +735,7 @@ const PresellScreen = ({ onStart }: { onStart: () => void }) => {
               onClick={() => setPlayerActive(true)}
             >
               <img 
-                src="https://cache.converteai.net/69d6c18b-4461-c2c4-b585-20e1/thumbnails/69d6c18b4461c2c4b58520e1/69d6c18b4461c2c4b58520e1_thumbnail.jpg" 
+                src="https://i.ibb.co/n8NR7f33/image.png" 
                 alt="Thumbnail do Vídeo"
                 className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
               />
