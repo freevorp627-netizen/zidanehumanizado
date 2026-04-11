@@ -589,12 +589,21 @@ export default function App() {
 
 const PresellScreen = ({ onStart }: { onStart: () => void }) => {
   const [isUnlocking, setIsUnlocking] = useState(false);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
 
   useEffect(() => {
+    // Carrega o SDK do SmartPlayer
     const s = document.createElement("script");
     s.src = "https://scripts.converteai.net/lib/js/smartplayer-wc/v4/sdk.js";
     s.async = true;
     document.head.appendChild(s);
+
+    // Define a URL do player diretamente para evitar problemas de carregamento no mobile
+    if (iframeRef.current) {
+      const baseUrl = 'https://scripts.converteai.net/ab14c621-69de-4bc7-ad1a-73b273a93155/players/69d6c18b4461c2c4b58520e1/v4/embed.html';
+      const params = (window.location.search || '?') + '&vl=' + encodeURIComponent(window.location.href);
+      iframeRef.current.src = baseUrl + params;
+    }
   }, []);
 
   const handleStart = () => {
@@ -634,19 +643,13 @@ const PresellScreen = ({ onStart }: { onStart: () => void }) => {
           <div id="ifr_69d6c18b4461c2c4b58520e1_wrapper" style={{ margin: "0 auto", width: "100%" }}>
             <div style={{ position: "relative", padding: "56.018518518518526% 0 0 0" }} id="ifr_69d6c18b4461c2c4b58520e1_aspect">
               <iframe
+                ref={iframeRef}
                 frameBorder="0"
                 allowFullScreen
-                src="about:blank"
+                allow="autoplay; fullscreen"
                 id="ifr_69d6c18b4461c2c4b58520e1"
                 style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}
                 referrerPolicy="origin"
-                onLoad={(e) => {
-                  const iframe = e.target as HTMLIFrameElement;
-                  if (iframe.src.includes('about:blank')) {
-                    iframe.onload = null;
-                    iframe.src = 'https://scripts.converteai.net/ab14c621-69de-4bc7-ad1a-73b273a93155/players/69d6c18b4461c2c4b58520e1/v4/embed.html' + (window.location.search || '?') + '&vl=' + encodeURIComponent(window.location.href);
-                  }
-                }}
               ></iframe>
             </div>
           </div>
