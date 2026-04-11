@@ -12,6 +12,7 @@ import {
   Mic,
   Video,
   Volume2,
+  VolumeX,
   UserPlus,
   Navigation,
   X,
@@ -19,8 +20,11 @@ import {
   MessageSquare,
   Send,
   MoreHorizontal,
+  MoreVertical,
   Plus,
+  PlusSquare,
   ChevronLeft,
+  ChevronRight,
   Search,
   CheckCircle2,
   ShoppingBag,
@@ -35,7 +39,14 @@ import {
   User,
   Bookmark,
   Lock,
-  Unlock
+  Unlock,
+  Play,
+  Pause,
+  Repeat2,
+  Film,
+  Info,
+  ArrowLeft,
+  Maximize2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ShinyButton } from './components/ui/shiny-button';
