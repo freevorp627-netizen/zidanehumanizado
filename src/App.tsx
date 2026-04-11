@@ -2196,6 +2196,8 @@ const TikTokLiveScreen = ({ onOpenCheckout, time, key }: { onOpenCheckout: () =>
   const [lastJoinedUser, setLastJoinedUser] = useState<string | null>(null);
   const [comments, setComments] = useState<any[]>([]);
   const [floatingHearts, setFloatingHearts] = useState<{ id: number; left: number }[]>([]);
+  const [isMuted, setIsMuted] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
   const scriptedFlags = useRef({ c1: false, c2: false, c3: false, shop: false });
 
   const brNames = ['João', 'Maria', 'Pedro', 'Ana', 'Lucas', 'Juliana', 'Mateus', 'Beatriz', 'Gabriel', 'Letícia', 'Rafael', 'Camila', 'Thiago', 'Fernanda', 'Carlos', 'Amanda', 'Ricardo', 'Vanessa', 'Marcos', 'Aline'];
@@ -2323,6 +2325,18 @@ const TikTokLiveScreen = ({ onOpenCheckout, time, key }: { onOpenCheckout: () =>
     // Begin random comments slightly after the first scripted one
     commentTimeout = setTimeout(addRandomComment, 3500);
 
+    // Play video with audio unlock attempt
+    if (videoRef.current) {
+      videoRef.current.play().catch(e => {
+        console.log("Live autoplay blocked, muting...");
+        if (videoRef.current) {
+          videoRef.current.muted = true;
+          setIsMuted(true);
+          videoRef.current.play().catch(() => {});
+        }
+      });
+    }
+
     return () => {
       clearInterval(likeInterval);
       clearInterval(viewerInterval);
@@ -2332,17 +2346,28 @@ const TikTokLiveScreen = ({ onOpenCheckout, time, key }: { onOpenCheckout: () =>
     };
   }, []);
 
+  const handleLiveTap = () => {
+    if (videoRef.current && videoRef.current.muted) {
+      videoRef.current.muted = false;
+      setIsMuted(false);
+      videoRef.current.play().catch(() => {});
+    }
+  };
+
   return (
     <div
       className="relative w-full h-full bg-black overflow-hidden"
+      onClick={handleLiveTap}
     >
       <StatusBar time={time} />
       {/* Live Video */}
       <div className="absolute inset-0 z-0">
         <video
+          ref={videoRef}
           autoPlay
           loop
           playsInline
+          muted={isMuted}
           onTimeUpdate={handleTimeUpdate}
           className="w-full h-full object-cover"
           src="https://pub-a772dcccd942498d933354c58ab4ce29.r2.dev/WhatsApp%20Video%202026-04-11%20at%2000.50.19.mp4"
