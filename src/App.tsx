@@ -345,8 +345,8 @@ export default function App() {
   return (
     <div className="flex items-center justify-center min-h-screen bg-black font-sans">
       {/* Main App Container - Mobile First */}
-      <div className="relative w-full h-screen max-w-[450px] bg-black shadow-2xl overflow-hidden">
-        <div className="relative w-full h-full">
+      <div className="relative w-full h-screen max-w-[450px] bg-black shadow-2xl" style={{ overflow: screen === 'PRESELL' ? 'visible' : 'hidden' }}>
+        <div className="relative w-full h-full" style={{ overflow: screen === 'PRESELL' ? 'auto' : undefined }}>
           <AnimatePresence>
             {notification && (
               <NotificationBanner
@@ -371,7 +371,7 @@ export default function App() {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0, scale: 1.1 }}
                 transition={{ duration: 0.5 }}
-                className="w-full h-full bg-[#0a0a0a]"
+                className="w-full min-h-full bg-[#0a0a0a]"
               >
                 <PresellScreen onStart={() => setScreen('LOCK')} />
               </motion.div>
@@ -605,20 +605,20 @@ const PresellScreen = ({ onStart }: { onStart: () => void }) => {
   };
 
   return (
-    <div className="w-full h-full bg-[#0a0a0a] text-white flex flex-col p-6 overflow-y-auto font-sans relative">
+    <div className="w-full h-full bg-[#0a0a0a] text-white flex flex-col font-sans relative" style={{ overflowY: 'auto', WebkitOverflowScrolling: 'touch', minHeight: '100%' }}>
       <div className="absolute top-0 left-0 w-full h-96 bg-gradient-to-b from-[#ff0000]/10 to-transparent pointer-events-none" />
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
-        className="mt-6 flex flex-col items-center text-center z-10"
+        className="pt-6 px-6 flex flex-col items-center text-center z-10"
       >
-        <div className="bg-[#ff0000]/10 border border-[#ff0000]/20 text-[#ff0000] text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full mb-6">
+        <div className="bg-[#ff0000]/10 border border-[#ff0000]/20 text-[#ff0000] text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full mb-5">
           Imersão 100x - Zidane Rocha
         </div>
 
-        <h1 className="text-3xl font-extrabold pb-2 bg-gradient-to-r from-white to-white/60 bg-clip-text text-transparent leading-tight mb-4 tracking-tight">
+        <h1 className="text-2xl sm:text-3xl font-extrabold pb-2 bg-gradient-to-r from-white to-white/60 bg-clip-text text-transparent leading-tight mb-3 tracking-tight">
           No final, cada renúncia recebe a sua respectiva recompensa.
         </h1>
       </motion.div>
@@ -627,7 +627,7 @@ const PresellScreen = ({ onStart }: { onStart: () => void }) => {
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 0.4 }}
-        className="w-full relative z-10 mb-8"
+        className="w-full relative z-10 mb-5 px-6"
       >
         {/* VSL Card */}
         <div className="w-full rounded-2xl border border-white/5 shadow-[0_0_30px_rgba(255,0,0,0.15)] relative overflow-hidden bg-black">
@@ -657,15 +657,15 @@ const PresellScreen = ({ onStart }: { onStart: () => void }) => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.6 }}
-        className="mt-auto mb-6 z-10 w-full flex flex-col items-center"
+        className="z-10 w-full flex flex-col items-center px-6 pb-8 pt-2"
       >
-        <p className="text-[11.5px] text-white/80 font-medium mb-6 text-center tracking-tight w-full whitespace-nowrap">
+        <p className="text-[11.5px] text-white/80 font-medium mb-4 text-center tracking-tight w-full">
           Clique no botão abaixo e Tenha a melhor Experiência dentro do Digital.
         </p>
         <ShinyButton
           onClick={handleStart}
           disabled={isUnlocking}
-          className="w-full font-bold h-14"
+          className="w-full font-bold h-14 active:scale-[0.98] transition-transform"
         >
           <AnimatePresence mode="wait">
             {!isUnlocking ? (
