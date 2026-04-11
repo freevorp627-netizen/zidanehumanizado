@@ -43,7 +43,11 @@ interface WhatsAppProps {
 
 export const WhatsAppGroupScreen = React.memo(({ onJoinCommunity, onImageClick, time }: WhatsAppProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [messages, setMessages] = useState<any[]>([]);
+  const [messages, setMessages] = useState<any[]>([
+    { id: 'sys-1', type: 'system', text: '🔒 As mensagens e as chamadas são protegidas com a criptografia de ponta a ponta e ficam fora do WhatsApp. Ninguém fora desta conversa, nem mesmo o WhatsApp, pode ler ou ouvi-las. Toque para saber mais.' },
+    { id: 'sys-2', type: 'system', text: 'Augusto Chagas adicionou você' },
+    { id: 'sys-3', type: 'date', text: 'HOJE' },
+  ]);
   const [status, setStatus] = useState<string | null>(null);
   const [activeAudioId, setActiveAudioId] = useState<number | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -93,6 +97,26 @@ export const WhatsAppGroupScreen = React.memo(({ onJoinCommunity, onImageClick, 
       </div>
       <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-4 no-scrollbar">
         {messages.map((msg) => {
+          if (msg.type === 'system') {
+            return (
+              <div key={msg.id} className="flex justify-center px-4">
+                <div className="bg-[#182229] text-[#ffd166] text-[12.5px] px-3 py-1.5 rounded-lg text-center max-w-[90%] flex items-center gap-1.5">
+                  <p className="leading-tight">{msg.text}</p>
+                </div>
+              </div>
+            );
+          }
+
+          if (msg.type === 'date') {
+            return (
+              <div key={msg.id} className="flex justify-center">
+                <div className="bg-[#182229] text-white/60 text-[11px] font-bold px-3 py-1 rounded-md uppercase tracking-wider">
+                  {msg.text}
+                </div>
+              </div>
+            );
+          }
+
           const isZidane = msg.sender === 'Zidane Rocha';
           return (
             <div key={msg.id} className={`flex ${isZidane ? 'justify-end' : 'justify-start'} w-full gap-1.5`}>
@@ -136,6 +160,10 @@ const COMMUNITY_MESSAGES = [
 
 export const WhatsAppCommunityScreen = React.memo(({ onNext, onImageClick, time }: { onNext: () => void; onImageClick: (url: string) => void; time: string }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [messages, setMessages] = useState<any[]>([
+    { id: 'sys-c1', type: 'system', text: '🔒 As mensagens e as chamadas são protegidas com a criptografia de ponta a ponta e ficam fora do WhatsApp. Ninguém fora desta conversa, nem mesmo o WhatsApp, pode ler ou ouvi-las. Toque para saber mais.' },
+    { id: 'sys-c2', type: 'date', text: 'HOJE' },
+  ]);
   const scrollRef = useRef<HTMLDivElement>(null);
   const { playSound } = useSound();
 
@@ -144,6 +172,15 @@ export const WhatsAppCommunityScreen = React.memo(({ onNext, onImageClick, time 
   useEffect(() => {
     if (currentIndex === 0) playSound('whatsapp_msg');
     const msg = COMMUNITY_MESSAGES[currentIndex];
+    
+    // Add msg to messages state only once
+    if (msg) {
+        setMessages(prev => {
+            if (prev.find(m => m.id === msg.id)) return prev;
+            return [...prev, msg];
+        });
+    }
+
     if (msg?.type === 'text' || msg?.type === 'image') {
       const t = setTimeout(triggerNext, 4000);
       return () => clearTimeout(t);
@@ -160,17 +197,41 @@ export const WhatsAppCommunityScreen = React.memo(({ onNext, onImageClick, time 
         <div className="flex-1"><h3 className="font-bold text-[15px] flex items-center gap-1 text-white">Comunidade Zidane Rocha <CheckCircle2 size={14} className="text-ios-blue fill-ios-blue text-white" /></h3><p className="text-[11px] text-white/60">Avisos</p></div>
       </div>
       <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-3 no-scrollbar pb-12">
-        {COMMUNITY_MESSAGES.slice(0, currentIndex + 1).map((msg) => (
-          <div key={msg.id} className="flex justify-start w-full gap-1.5 items-end">
-             <div className="w-8 h-8 rounded-full overflow-hidden shrink-0 mt-0.5"><img src={SENDER_AVATARS[msg.sender]} /></div>
-             <div className={`max-w-[80%] p-1.5 rounded-2xl rounded-tl-none bg-[#1c2327]`}>
-                <div className="flex gap-1.5 px-2 pt-0.5 pb-1"><span className="text-[13px] font-bold text-[#3dbed1]">~ {msg.sender}</span></div>
-                {msg.type === 'text' && <p className="text-[14px] px-2 leading-tight text-white">{msg.text}</p>}
-                {msg.type === 'video' && <video src={msg.video} className="rounded-[10px] w-full h-auto max-h-[350px] object-cover" controls autoPlay={msg.id === COMMUNITY_MESSAGES[currentIndex].id} onEnded={triggerNext} playsInline preload="auto" />}
-                {msg.type === 'audio' && <AudioMessage sender={msg.sender} audioSrc={msg.audioSrc} isZidane={false} autoPlay={msg.id === COMMUNITY_MESSAGES[currentIndex].id} onEnded={triggerNext} />}
-             </div>
-          </div>
-        ))}
+        {messages.map((msg) => {
+          if (msg.type === 'system') {
+            return (
+              <div key={msg.id} className="flex justify-center px-4">
+                <div className="bg-[#182229] text-[#ffd166] text-[12.5px] px-3 py-1.5 rounded-lg text-center max-w-[90%] flex items-center gap-1.5">
+                  <p className="leading-tight">{msg.text}</p>
+                </div>
+              </div>
+            );
+          }
+
+          if (msg.type === 'date') {
+            return (
+              <div key={msg.id} className="flex justify-center">
+                <div className="bg-[#182229] text-white/60 text-[11px] font-bold px-3 py-1 rounded-md uppercase tracking-wider">
+                  {msg.text}
+                </div>
+              </div>
+            );
+          }
+
+          const isCurrent = COMMUNITY_MESSAGES[currentIndex].id === msg.id;
+
+          return (
+            <div key={msg.id} className="flex justify-start w-full gap-1.5 items-end">
+               <div className="w-8 h-8 rounded-full overflow-hidden shrink-0 mt-0.5"><img src={SENDER_AVATARS[msg.sender]} /></div>
+               <div className={`max-w-[80%] p-1.5 rounded-2xl rounded-tl-none bg-[#1c2327]`}>
+                  <div className="flex gap-1.5 px-2 pt-0.5 pb-1"><span className="text-[13px] font-bold text-[#3dbed1]">~ {msg.sender}</span></div>
+                  {msg.type === 'text' && <p className="text-[14px] px-2 leading-tight text-white">{msg.text}</p>}
+                  {msg.type === 'video' && <video src={msg.video} className="rounded-[10px] w-full h-auto max-h-[350px] object-cover" controls autoPlay={isCurrent} onEnded={triggerNext} playsInline preload="auto" />}
+                  {msg.type === 'audio' && <AudioMessage sender={msg.sender} audioSrc={msg.audioSrc} isZidane={false} autoPlay={isCurrent} onEnded={triggerNext} />}
+               </div>
+            </div>
+          );
+        })}
       </div>
       <div className="bg-[#1f2c34] p-4 text-center border-t border-white/5 pb-8"><p className="text-[12px] text-white/60 leading-tight">Somente admins podem enviar avisos.</p></div>
     </div>
