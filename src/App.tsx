@@ -673,10 +673,11 @@ const PresellScreen = ({ onStart }: { onStart: () => void }) => {
   };
 
   useEffect(() => {
-    // Carrega o SDK do SmartPlayer
+    // Carrega o SDK do SmartPlayer com prioridade máxima
     const s = document.createElement("script");
     s.src = "https://scripts.converteai.net/lib/js/smartplayer-wc/v4/sdk.js";
     s.async = true;
+    (s as any).fetchPriority = "high";
     document.head.appendChild(s);
 
     // Define a URL do player diretamente para evitar problemas de carregamento no mobile
