@@ -162,6 +162,42 @@ const AppUnavailableModal = ({ appName, onClose }: { appName: string; onClose: (
   </div>
 );
 
+const NavigationControls = ({ setScreen, setCurrentStep, setNotification }: { 
+  setScreen: (s: Screen) => void; 
+  setCurrentStep: (step: number) => void; 
+  setNotification: (n: Notification | null) => void;
+}) => {
+  const sections = [
+    { label: 'Presell', screen: 'PRESELL' as Screen, step: 1 },
+    { label: 'Bloqueio', screen: 'LOCK' as Screen, step: 1 },
+    { label: 'Ligação', screen: 'INCOMING_CALL' as Screen, step: 1 },
+    { label: 'WA Grupo', screen: 'WHATSAPP_GROUP' as Screen, step: 2 },
+    { label: 'WA Comunidade', screen: 'WHATSAPP_COMMUNITY' as Screen, step: 2 },
+    { label: 'Instagram', screen: 'INSTAGRAM_REELS' as Screen, step: 3 },
+    { label: 'TikTok', screen: 'TIKTOK_FEED' as Screen, step: 4 },
+  ];
+
+  return (
+    <div className="fixed left-6 top-1/2 -translate-y-1/2 hidden xl:flex flex-col gap-3 z-[9999]">
+      <div className="text-white/30 text-[10px] font-bold uppercase tracking-widest ml-4 mb-1">Navegação Rápida</div>
+      {sections.map((s) => (
+        <button
+          key={s.screen}
+          onClick={() => {
+            setScreen(s.screen);
+            setCurrentStep(s.step);
+            setNotification(null);
+          }}
+          className="bg-white/5 hover:bg-white/10 backdrop-blur-xl text-white/70 hover:text-white text-[11px] font-bold py-3 px-5 rounded-2xl border border-white/5 hover:border-white/20 transition-all active:scale-95 text-left flex items-center justify-between min-w-[160px] group shadow-2xl"
+        >
+          {s.label}
+          <ChevronRight size={14} className="opacity-0 group-hover:opacity-50 transition-opacity" />
+        </button>
+      ))}
+    </div>
+  );
+};
+
 // --- Audio Cache for Optimization ---
 const AUDIO_URLS = {
   notification: 'https://pub-a772dcccd942498d933354c58ab4ce29.r2.dev/audios/notificacao-audio.mp3',
@@ -410,6 +446,15 @@ export default function App() {
 
   return (
     <div className="flex items-center justify-center bg-black font-sans" style={{ minHeight: '100dvh' }}>
+      {/* Quick Navigation - Only on Localhost/Development */}
+      {(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && (
+        <NavigationControls 
+          setScreen={setScreen} 
+          setCurrentStep={setCurrentStep} 
+          setNotification={setNotification} 
+        />
+      )}
+
       {/* Main App Container - Mobile First */}
       <div className="relative w-full max-w-[450px] bg-black shadow-2xl" style={{ height: '100dvh', overflow: screen === 'PRESELL' ? 'auto' : 'hidden' }}>
         <div className="relative w-full h-full">
@@ -1748,6 +1793,7 @@ const VideoPlayer = ({ src, isActive, onDoubleTap, onEnded }: { src: string; isA
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isPaused, setIsPaused] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [showHeart, setShowHeart] = useState(false);
   const [showVolumeIcon, setShowVolumeIcon] = useState(false);
   const lastTap = useRef<number>(0);
@@ -1817,21 +1863,43 @@ const VideoPlayer = ({ src, isActive, onDoubleTap, onEnded }: { src: string; isA
       <video
         ref={videoRef}
         src={src}
-        preload={isActive ? "auto" : "metadata"}
+        preload="auto"
         loop={!onEnded}
         playsInline
         muted={isMuted}
         autoPlay={isActive}
-        className="w-full h-full object-cover"
+        className={`w-full h-full object-cover transition-opacity duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'}`}
         onContextMenu={(e) => e.preventDefault()}
         onEnded={onEnded}
-        onPlay={handlePlay}
+        onPlay={() => {
+          handlePlay();
+          setIsLoading(false);
+        }}
+        onWaiting={() => setIsLoading(true)}
+        onPlaying={() => setIsLoading(false)}
+        onLoadStart={() => setIsLoading(true)}
         onCanPlay={(e) => {
+          setIsLoading(false);
           if (isActive && !isPaused) {
             (e.target as HTMLVideoElement).play().catch(() => { });
           }
         }}
+        onStalled={() => setIsLoading(true)}
       />
+
+      {/* Loading Spinner */}
+      <AnimatePresence>
+        {isLoading && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="absolute inset-0 flex items-center justify-center bg-black/20 backdrop-blur-[2px] z-20"
+          >
+            <div className="w-10 h-10 border-4 border-white/20 border-t-white rounded-full animate-spin" />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Center Icons */}
       <AnimatePresence>
@@ -1927,7 +1995,7 @@ const InstagramReelsScreen = ({ onNext, time }: { onNext: () => void; time: stri
       id: 4,
       isAd: true,
       avatar: 'https://i.ibb.co/ZP5wt8W/image.png',
-      video: 'https://pub-a772dcccd942498d933354c58ab4ce29.r2.dev/vsl%20zid.mov',
+      video: 'https://pub-a772dcccd942498d933354c58ab4ce29.r2.dev/vsl%20zid1.mp4',
       user: '@zidane.rochaa',
       desc: 'pov : você não precisa mentir para escalar.',
       cta: 'Seguir',
