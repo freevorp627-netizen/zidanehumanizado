@@ -1094,6 +1094,7 @@ const IncomingCallScreen = ({ onAccept, time }: { onAccept: () => void; time: st
 const FaceTimeScreen = ({ onEnd, onFinish, onNearEnd, time }: { onEnd: () => void; onFinish: () => void; onNearEnd?: () => void; time: string; key?: string }) => {
   const [timer, setTimer] = useState(0);
   const [nearEndFired, setNearEndFired] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   const hangUp = () => {
@@ -1102,12 +1103,37 @@ const FaceTimeScreen = ({ onEnd, onFinish, onNearEnd, time }: { onEnd: () => voi
       sound.currentTime = 0;
       sound.play().catch(e => console.log("Hangup sound blocked:", e));
     }
+    // Stop the video
+    if (videoRef.current) {
+      videoRef.current.pause();
+    }
     onFinish();
   };
 
   useEffect(() => {
     const interval = setInterval(() => setTimer(t => t + 1), 1000);
-    return () => clearInterval(interval);
+    
+    // Attempt playback on mount
+    const attemptPlay = async () => {
+      if (!videoRef.current) return;
+      try {
+        await videoRef.current.play();
+      } catch (err) {
+        console.log("FaceTime autoplay blocked, muting...", err);
+        if (videoRef.current) {
+          videoRef.current.muted = true;
+          videoRef.current.play().catch(() => {});
+        }
+      }
+    };
+    
+    // Short delay to ensure mount
+    const t = setTimeout(attemptPlay, 100);
+    
+    return () => {
+      clearInterval(interval);
+      clearTimeout(t);
+    };
   }, []);
 
   const handleTimeUpdate = () => {
@@ -1140,18 +1166,42 @@ const FaceTimeScreen = ({ onEnd, onFinish, onNearEnd, time }: { onEnd: () => voi
       className="relative w-full h-full bg-[#1c1c1e]"
     >
       {/* Video Background */}
-      <div className="absolute inset-0 overflow-hidden">
+      <div className="absolute inset-0 overflow-hidden cursor-pointer" onClick={() => {
+        if (videoRef.current) {
+          videoRef.current.muted = false;
+          videoRef.current.play().catch(() => {});
+        }
+      }}>
         <video
           ref={videoRef}
           autoPlay
           playsInline
           onEnded={hangUp}
           onTimeUpdate={handleTimeUpdate}
-          className="w-full h-full object-cover opacity-100"
+          onPlay={() => setIsLoading(false)}
+          onWaiting={() => setIsLoading(true)}
+          onPlaying={() => setIsLoading(false)}
+          onLoadStart={() => setIsLoading(true)}
+          onCanPlay={() => setIsLoading(false)}
+          className={`w-full h-full object-cover transition-opacity duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'}`}
           preload="auto"
           src="https://pub-a772dcccd942498d933354c58ab4ce29.r2.dev/WhatsApp%20Video%202026-04-08%20at%2015.57.00.mp4"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/60" />
+
+        {/* Loading Spinner for FaceTime */}
+        <AnimatePresence>
+          {isLoading && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-[2px] z-20"
+            >
+              <div className="w-10 h-10 border-4 border-white/20 border-t-white rounded-full animate-spin" />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       <div className="absolute top-0 left-0 right-0 h-10 bg-black z-50 flex items-center">
