@@ -1800,6 +1800,18 @@ const WhatsAppCommunityScreen = ({ onNext, onImageClick, time }: { onNext: () =>
                     onEnded={triggerNext}
                     playsInline
                     referrerPolicy="no-referrer"
+                    onPlay={(e) => {
+                      (e.target as HTMLVideoElement).muted = false;
+                    }}
+                    onCanPlay={(e) => {
+                      if (idx === currentIndex) {
+                        (e.target as HTMLVideoElement).play().catch(() => {
+                          console.log("WA Community video blocked, muting...");
+                          (e.target as HTMLVideoElement).muted = true;
+                          (e.target as HTMLVideoElement).play().catch(() => {});
+                        });
+                      }
+                    }}
                   />
                   <div className="absolute bottom-6 right-2 rounded flex items-center justify-center bg-black/30 px-1 py-0.5 pointer-events-none">
                     <span className="text-[10px] text-white leading-none">{msg.time}</span>
