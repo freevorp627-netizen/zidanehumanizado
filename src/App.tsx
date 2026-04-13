@@ -2339,6 +2339,7 @@ const TikTokLiveScreen = ({ onOpenCheckout, time, key }: { onOpenCheckout: () =>
   const [lastJoinedUser, setLastJoinedUser] = useState<string | null>(null);
   const [comments, setComments] = useState<any[]>([]);
   const [floatingHearts, setFloatingHearts] = useState<{ id: number; left: number }[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [isMuted, setIsMuted] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const scriptedFlags = useRef({ c1: false, c2: false, c3: false, shop: false });
@@ -2514,10 +2515,24 @@ const TikTokLiveScreen = ({ onOpenCheckout, time, key }: { onOpenCheckout: () =>
           playsInline
           muted={isMuted}
           onTimeUpdate={handleTimeUpdate}
-          className="w-full h-full object-cover"
-          src="https://pub-a772dcccd942498d933354c58ab4ce29.r2.dev/WhatsApp%20Video%202026-04-11%20at%2000.50.19.mp4"
+          onPlay={() => setIsLoading(false)}
+          onWaiting={() => setIsLoading(true)}
+          onPlaying={() => setIsLoading(false)}
+          onLoadStart={() => setIsLoading(true)}
+          onCanPlay={() => setIsLoading(false)}
+          className={`w-full h-full object-cover transition-opacity duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'}`}
+          src="https://pub-a772dcccd942498d933354c58ab4ce29.r2.dev/zidlive2.mp4"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/60 pointer-events-none" />
+        
+        {/* Loading Spinner for Live */}
+        <AnimatePresence>
+          {isLoading && (
+            <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm z-[5]">
+               <div className="w-10 h-10 border-4 border-white/20 border-t-white rounded-full animate-spin" />
+            </div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Floating Hearts Animation */}
