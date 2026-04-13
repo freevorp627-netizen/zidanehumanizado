@@ -1995,7 +1995,7 @@ const InstagramReelsScreen = ({ onNext, time }: { onNext: () => void; time: stri
       id: 4,
       isAd: true,
       avatar: 'https://i.ibb.co/ZP5wt8W/image.png',
-      video: 'https://pub-a772dcccd942498d933354c58ab4ce29.r2.dev/vsl%20zid1.mp4',
+      video: 'https://pub-a772dcccd942498d933354c58ab4ce29.r2.dev/vsl%20zid3.mp4',
       user: '@zidane.rochaa',
       desc: 'pov : você não precisa mentir para escalar.',
       cta: 'Seguir',
@@ -2188,7 +2188,7 @@ const TikTokFeedScreen = ({ onEnterLive, time }: { onEnterLive: () => void; time
             {tt.isLive ? (
               <div className="w-full h-full relative cursor-pointer">
                 <VideoPlayer
-                  src="https://pub-a772dcccd942498d933354c58ab4ce29.r2.dev/WhatsApp%20Video%202026-04-11%20at%2000.50.19.mp4"
+                  src="https://pub-a772dcccd942498d933354c58ab4ce29.r2.dev/zidlive2.mp4"
                   isActive={currentIndex === i}
                   onEnded={() => { }}
                 />
