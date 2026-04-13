@@ -1790,7 +1790,16 @@ const WhatsAppCommunityScreen = ({ onNext, onImageClick, time }: { onNext: () =>
               )}
 
               {msg.type === 'video' && (
-                <div className="rounded-[10px] overflow-hidden relative bg-black">
+                <div 
+                  className="rounded-[10px] overflow-hidden relative bg-black cursor-pointer"
+                  onClick={(e) => {
+                    const v = e.currentTarget.querySelector('video');
+                    if (v) {
+                      v.muted = false;
+                      v.play().catch(() => {});
+                    }
+                  }}
+                >
                   <video
                     src={msg.video}
                     className="w-full h-auto max-h-[350px] object-cover"
@@ -1800,15 +1809,15 @@ const WhatsAppCommunityScreen = ({ onNext, onImageClick, time }: { onNext: () =>
                     onEnded={triggerNext}
                     playsInline
                     referrerPolicy="no-referrer"
-                    onPlay={(e) => {
-                      (e.target as HTMLVideoElement).muted = false;
-                    }}
                     onCanPlay={(e) => {
                       if (idx === currentIndex) {
-                        (e.target as HTMLVideoElement).play().catch(() => {
-                          console.log("WA Community video blocked, muting...");
-                          (e.target as HTMLVideoElement).muted = true;
-                          (e.target as HTMLVideoElement).play().catch(() => {});
+                        const v = e.target as HTMLVideoElement;
+                        v.play().catch(() => {
+                           console.log("Community video blocked by Insta, falling back to muted...");
+                           v.muted = true;
+                           v.play().catch(() => {
+                              console.log("Total block.");
+                           });
                         });
                       }
                     }}
