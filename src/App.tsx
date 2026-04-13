@@ -1790,16 +1790,7 @@ const WhatsAppCommunityScreen = ({ onNext, onImageClick, time }: { onNext: () =>
               )}
 
               {msg.type === 'video' && (
-                <div 
-                  className="rounded-[10px] overflow-hidden relative bg-black cursor-pointer"
-                  onClick={(e) => {
-                    const v = e.currentTarget.querySelector('video');
-                    if (v) {
-                      v.muted = false;
-                      v.play().catch(() => {});
-                    }
-                  }}
-                >
+                <div className="rounded-[10px] overflow-hidden relative bg-black">
                   <video
                     src={msg.video}
                     className="w-full h-auto max-h-[350px] object-cover"
@@ -1809,18 +1800,6 @@ const WhatsAppCommunityScreen = ({ onNext, onImageClick, time }: { onNext: () =>
                     onEnded={triggerNext}
                     playsInline
                     referrerPolicy="no-referrer"
-                    onCanPlay={(e) => {
-                      if (idx === currentIndex) {
-                        const v = e.target as HTMLVideoElement;
-                        v.play().catch(() => {
-                           console.log("Community video blocked by Insta, falling back to muted...");
-                           v.muted = true;
-                           v.play().catch(() => {
-                              console.log("Total block.");
-                           });
-                        });
-                      }
-                    }}
                   />
                   <div className="absolute bottom-6 right-2 rounded flex items-center justify-center bg-black/30 px-1 py-0.5 pointer-events-none">
                     <span className="text-[10px] text-white leading-none">{msg.time}</span>
@@ -1872,21 +1851,7 @@ const VideoPlayer = ({ src, isActive, onDoubleTap, onEnded }: { src: string; isA
   useEffect(() => {
     if (videoRef.current) {
       if (isActive && !isPaused) {
-        const playVideo = async () => {
-          if (!videoRef.current) return;
-          try {
-            await videoRef.current.play();
-          } catch (e) {
-            console.log("Autoplay blocked, muting...");
-            if (videoRef.current) {
-              videoRef.current.muted = true;
-              setIsMuted(true);
-              videoRef.current.play().catch(() => { });
-            }
-          }
-        };
-        const t = setTimeout(playVideo, 100);
-        return () => clearTimeout(t);
+        videoRef.current.play().catch(() => { });
       } else {
         videoRef.current.pause();
       }
@@ -2540,16 +2505,9 @@ const TikTokLiveScreen = ({ onOpenCheckout, time, key }: { onOpenCheckout: () =>
     // Begin random comments slightly after the first scripted one
     commentTimeout = setTimeout(addRandomComment, 3500);
 
-    // Play video with audio unlock attempt
+    // Play video natively
     if (videoRef.current) {
-      videoRef.current.play().catch(e => {
-        console.log("Live autoplay blocked, muting...");
-        if (videoRef.current) {
-          videoRef.current.muted = true;
-          setIsMuted(true);
-          videoRef.current.play().catch(() => { });
-        }
-      });
+      videoRef.current.play().catch(() => { });
     }
 
     return () => {
