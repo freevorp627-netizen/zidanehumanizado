@@ -704,12 +704,16 @@ const PresellScreen = ({ onStart }: { onStart: () => void }) => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
   const unlockAudio = () => {
-    // 1. Desbloqueia todos os sons do cache tocando um milissegundo de cada um
+    // 1. Desbloqueia todos os sons do cache de forma silenciosa
     Object.values(AUDIO_CACHE).forEach(sound => {
+      sound.muted = true;
       sound.play().then(() => {
         sound.pause();
         sound.currentTime = 0;
-      }).catch(() => { });
+        sound.muted = false;
+      }).catch(() => {
+        sound.muted = false;
+      });
     });
 
     // 2. Play silent audio as backup
