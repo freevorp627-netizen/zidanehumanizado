@@ -704,17 +704,12 @@ const PresellScreen = ({ onStart }: { onStart: () => void }) => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
   const unlockAudio = () => {
-    // 1. Desbloqueia todos os sons do cache tocando em volume quase zero
+    // 1. Desbloqueia todos os sons do cache tocando um milissegundo de cada um
     Object.values(AUDIO_CACHE).forEach(sound => {
-      const originalVolume = sound.volume;
-      sound.volume = 0.01; // Quase mudo para não oprimir a permissão da Apple
       sound.play().then(() => {
         sound.pause();
         sound.currentTime = 0;
-        sound.volume = originalVolume;
-      }).catch(() => {
-        sound.volume = originalVolume;
-      });
+      }).catch(() => { });
     });
 
     // 2. Play silent audio as backup
@@ -1107,10 +1102,6 @@ const FaceTimeScreen = ({ onEnd, onFinish, onNearEnd, time }: { onEnd: () => voi
     if (sound) {
       sound.currentTime = 0;
       sound.play().catch(e => console.log("Hangup sound blocked:", e));
-    }
-    // Stop the video
-    if (videoRef.current) {
-      videoRef.current.pause();
     }
     onFinish();
   };
