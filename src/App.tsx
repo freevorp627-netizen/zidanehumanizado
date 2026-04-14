@@ -162,9 +162,9 @@ const AppUnavailableModal = ({ appName, onClose }: { appName: string; onClose: (
   </div>
 );
 
-const NavigationControls = ({ setScreen, setCurrentStep, setNotification }: { 
-  setScreen: (s: Screen) => void; 
-  setCurrentStep: (step: number) => void; 
+const NavigationControls = ({ setScreen, setCurrentStep, setNotification }: {
+  setScreen: (s: Screen) => void;
+  setCurrentStep: (step: number) => void;
   setNotification: (n: Notification | null) => void;
 }) => {
   const sections = [
@@ -448,10 +448,10 @@ export default function App() {
     <div className="flex items-center justify-center bg-black font-sans" style={{ minHeight: '100dvh' }}>
       {/* Quick Navigation - Only on Localhost/Development */}
       {(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && (
-        <NavigationControls 
-          setScreen={setScreen} 
-          setCurrentStep={setCurrentStep} 
-          setNotification={setNotification} 
+        <NavigationControls
+          setScreen={setScreen}
+          setCurrentStep={setCurrentStep}
+          setNotification={setNotification}
         />
       )}
 
@@ -1111,7 +1111,7 @@ const FaceTimeScreen = ({ onEnd, onFinish, onNearEnd, time }: { onEnd: () => voi
 
   useEffect(() => {
     const interval = setInterval(() => setTimer(t => t + 1), 1000);
-    
+
     // Attempt playback on mount
     const attemptPlay = async () => {
       if (!videoRef.current) return;
@@ -1121,14 +1121,14 @@ const FaceTimeScreen = ({ onEnd, onFinish, onNearEnd, time }: { onEnd: () => voi
         console.log("FaceTime autoplay blocked, muting...", err);
         if (videoRef.current) {
           videoRef.current.muted = true;
-          videoRef.current.play().catch(() => {});
+          videoRef.current.play().catch(() => { });
         }
       }
     };
-    
+
     // Short delay to ensure mount
     const t = setTimeout(attemptPlay, 100);
-    
+
     return () => {
       clearInterval(interval);
       clearTimeout(t);
@@ -1168,7 +1168,7 @@ const FaceTimeScreen = ({ onEnd, onFinish, onNearEnd, time }: { onEnd: () => voi
       <div className="absolute inset-0 overflow-hidden cursor-pointer" onClick={() => {
         if (videoRef.current) {
           videoRef.current.muted = false;
-          videoRef.current.play().catch(() => {});
+          videoRef.current.play().catch(() => { });
         }
       }}>
         <video
@@ -1320,7 +1320,7 @@ const AudioMessage = ({ sender, audioSrc, audioDuration, isZidane, autoPlay, onE
           } catch (retryError) {
             console.log("Audio still blocked after retry");
           }
-        }, 800);
+        }, 500);
       }
     };
 
@@ -2553,12 +2553,12 @@ const TikTokLiveScreen = ({ onOpenCheckout, time, key }: { onOpenCheckout: () =>
           src="https://pub-a772dcccd942498d933354c58ab4ce29.r2.dev/zidlive2.mp4"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/60 pointer-events-none" />
-        
+
         {/* Loading Spinner for Live */}
         <AnimatePresence>
           {isLoading && (
             <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm z-[5]">
-               <div className="w-10 h-10 border-4 border-white/20 border-t-white rounded-full animate-spin" />
+              <div className="w-10 h-10 border-4 border-white/20 border-t-white rounded-full animate-spin" />
             </div>
           )}
         </AnimatePresence>
