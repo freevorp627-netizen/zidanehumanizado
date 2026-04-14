@@ -167,6 +167,7 @@ const NavigationControls = ({ setScreen, setCurrentStep, setNotification }: {
   setCurrentStep: (step: number) => void;
   setNotification: (n: Notification | null) => void;
 }) => {
+  const [isOpen, setIsOpen] = useState(false);
   const sections = [
     { label: 'Presell', screen: 'PRESELL' as Screen, step: 1 },
     { label: 'Bloqueio', screen: 'LOCK' as Screen, step: 1 },
@@ -178,23 +179,33 @@ const NavigationControls = ({ setScreen, setCurrentStep, setNotification }: {
   ];
 
   return (
-    <div className="fixed left-6 top-1/2 -translate-y-1/2 hidden xl:flex flex-col gap-3 z-[9999]">
-      <div className="text-white/30 text-[10px] font-bold uppercase tracking-widest ml-4 mb-1">Navegação Rápida</div>
-      {sections.map((s) => (
-        <button
-          key={s.screen}
-          onClick={() => {
-            setScreen(s.screen);
-            setCurrentStep(s.step);
-            setNotification(null);
-          }}
-          className="bg-white/5 hover:bg-white/10 backdrop-blur-xl text-white/70 hover:text-white text-[11px] font-bold py-3 px-5 rounded-2xl border border-white/5 hover:border-white/20 transition-all active:scale-95 text-left flex items-center justify-between min-w-[160px] group shadow-2xl"
-        >
-          {s.label}
-          <ChevronRight size={14} className="opacity-0 group-hover:opacity-50 transition-opacity" />
-        </button>
-      ))}
-    </div>
+    <>
+      <button 
+        onClick={() => setIsOpen(!isOpen)}
+        className="fixed top-4 right-4 z-[99999] bg-black/50 p-2 rounded-full border border-white/10 backdrop-blur-md xl:hidden"
+      >
+        <Settings size={20} className="text-white/60" />
+      </button>
+
+      <div className={`fixed left-4 xl:left-6 top-1/2 -translate-y-1/2 flex-col gap-2 xl:gap-3 z-[9999] bg-black/80 xl:bg-transparent p-4 xl:p-0 rounded-2xl border border-white/10 xl:border-none backdrop-blur-xl xl:backdrop-blur-none transition-all ${isOpen ? 'flex' : 'hidden xl:flex'} max-w-[200px]`}>
+        <div className="text-white/30 text-[10px] font-bold uppercase tracking-widest ml-2 xl:ml-4 mb-1 border-b border-white/10 pb-2 xl:border-none xl:pb-0">Navegação Rápida</div>
+        {sections.map((s) => (
+          <button
+            key={s.screen}
+            onClick={() => {
+              setScreen(s.screen);
+              setCurrentStep(s.step);
+              setNotification(null);
+              setIsOpen(false);
+            }}
+            className="bg-white/5 hover:bg-white/10 backdrop-blur-xl text-white/70 hover:text-white text-[11px] font-bold py-2 xl:py-3 px-4 xl:px-5 rounded-xl xl:rounded-2xl border border-white/5 hover:border-white/20 transition-all active:scale-95 text-left flex items-center justify-between min-w-[140px] xl:min-w-[160px] group shadow-2xl"
+          >
+            {s.label}
+            <ChevronRight size={14} className="opacity-0 group-hover:opacity-50 transition-opacity" />
+          </button>
+        ))}
+      </div>
+    </>
   );
 };
 
@@ -230,6 +241,23 @@ export default function App() {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [unavailableApp, setUnavailableApp] = useState<string | null>(null);
   const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
+  const [isAllowedDebugger, setIsAllowedDebugger] = useState(false);
+
+  useEffect(() => {
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+      setIsAllowedDebugger(true);
+      return;
+    }
+    
+    fetch('https://api.ipify.org?format=json')
+      .then(res => res.json())
+      .then(data => {
+        if (data.ip === '72.14.201.201' || data.ip === '168.90.62.213') {
+          setIsAllowedDebugger(true);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -446,8 +474,8 @@ export default function App() {
 
   return (
     <div className="flex items-center justify-center bg-black font-sans" style={{ minHeight: '100dvh' }}>
-      {/* Quick Navigation - Only on Localhost/Development */}
-      {(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && (
+      {/* Quick Navigation - IP restricted */}
+      {isAllowedDebugger && (
         <NavigationControls
           setScreen={setScreen}
           setCurrentStep={setCurrentStep}
