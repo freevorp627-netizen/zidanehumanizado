@@ -1662,6 +1662,7 @@ const WhatsAppGroupScreen = ({ onJoinCommunity, onImageClick, time }: { onJoinCo
 
 const CommunityVideo = ({ src, isActive, onEnded, time }: { src: string; isActive: boolean; onEnded: () => void; time: string }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [isBlocked, setIsBlocked] = useState(false);
 
   useEffect(() => {
     if (isActive && videoRef.current) {
@@ -1670,9 +1671,11 @@ const CommunityVideo = ({ src, isActive, onEnded, time }: { src: string; isActiv
           await new Promise(r => setTimeout(r, 600)); // Delay to avoid collision with wa_msg
           if (videoRef.current) {
             await videoRef.current.play();
+            setIsBlocked(false);
           }
         } catch (e) {
           console.log("Community video blocked:", e);
+          setIsBlocked(true);
         }
       };
       waitAndPlay();
@@ -1681,18 +1684,35 @@ const CommunityVideo = ({ src, isActive, onEnded, time }: { src: string; isActiv
     }
   }, [isActive]);
 
+  const forcePlay = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (videoRef.current) {
+      videoRef.current.muted = false;
+      videoRef.current.play()
+        .then(() => setIsBlocked(false))
+        .catch(() => {});
+    }
+  };
+
   return (
-    <div className="rounded-[10px] overflow-hidden relative bg-black">
+    <div className="rounded-[10px] overflow-hidden relative bg-black cursor-pointer" onClick={forcePlay}>
       <video
         ref={videoRef}
         src={src}
-        className="w-full h-auto max-h-[350px] object-cover"
-        controls
+        className={`w-full h-auto max-h-[350px] object-cover ${isBlocked ? 'pointer-events-none' : ''}`}
+        controls={!isBlocked}
         preload={isActive ? "auto" : "metadata"}
         onEnded={onEnded}
         playsInline
         referrerPolicy="no-referrer"
       />
+      {isBlocked && (
+        <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+          <div className="w-14 h-14 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm border border-white/40">
+            <div className="w-0 h-0 border-t-8 border-t-transparent border-l-[14px] border-l-white border-b-8 border-b-transparent ml-1" />
+          </div>
+        </div>
+      )}
       <div className="absolute bottom-6 right-2 rounded flex items-center justify-center bg-black/30 px-1 py-0.5 pointer-events-none">
         <span className="text-[10px] text-white leading-none">{time}</span>
       </div>
