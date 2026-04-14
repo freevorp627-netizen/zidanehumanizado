@@ -1660,6 +1660,46 @@ const WhatsAppGroupScreen = ({ onJoinCommunity, onImageClick, time }: { onJoinCo
   );
 };
 
+const CommunityVideo = ({ src, isActive, onEnded, time }: { src: string; isActive: boolean; onEnded: () => void; time: string }) => {
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    if (isActive && videoRef.current) {
+      const waitAndPlay = async () => {
+        try {
+          await new Promise(r => setTimeout(r, 600)); // Delay to avoid collision with wa_msg
+          if (videoRef.current) {
+            await videoRef.current.play();
+          }
+        } catch (e) {
+          console.log("Community video blocked:", e);
+        }
+      };
+      waitAndPlay();
+    } else if (!isActive && videoRef.current) {
+      videoRef.current.pause();
+    }
+  }, [isActive]);
+
+  return (
+    <div className="rounded-[10px] overflow-hidden relative bg-black">
+      <video
+        ref={videoRef}
+        src={src}
+        className="w-full h-auto max-h-[350px] object-cover"
+        controls
+        preload={isActive ? "auto" : "metadata"}
+        onEnded={onEnded}
+        playsInline
+        referrerPolicy="no-referrer"
+      />
+      <div className="absolute bottom-6 right-2 rounded flex items-center justify-center bg-black/30 px-1 py-0.5 pointer-events-none">
+        <span className="text-[10px] text-white leading-none">{time}</span>
+      </div>
+    </div>
+  );
+};
+
 const COMMUNITY_MESSAGES = [
   { id: 1, sender: 'Zidane Rocha', type: 'text', text: 'Pra vocês que tem dúvida se eu realmente trago resultado pros meus alunos, olha esses depoimentos abaixoo!! 👇', time: '16:05' },
   { id: 2, sender: 'Zidane Rocha', type: 'video', video: 'https://pub-a772dcccd942498d933354c58ab4ce29.r2.dev/WhatsApp%20Video%202026-04-08%20at%2016.06.50.mp4', time: '16:06' },
@@ -1790,21 +1830,12 @@ const WhatsAppCommunityScreen = ({ onNext, onImageClick, time }: { onNext: () =>
               )}
 
               {msg.type === 'video' && (
-                <div className="rounded-[10px] overflow-hidden relative bg-black">
-                  <video
-                    src={msg.video}
-                    className="w-full h-auto max-h-[350px] object-cover"
-                    controls
-                    preload={idx === currentIndex ? "auto" : "metadata"}
-                    autoPlay={idx === currentIndex}
-                    onEnded={triggerNext}
-                    playsInline
-                    referrerPolicy="no-referrer"
-                  />
-                  <div className="absolute bottom-6 right-2 rounded flex items-center justify-center bg-black/30 px-1 py-0.5 pointer-events-none">
-                    <span className="text-[10px] text-white leading-none">{msg.time}</span>
-                  </div>
-                </div>
+                <CommunityVideo 
+                  src={msg.video!} 
+                  isActive={idx === currentIndex} 
+                  onEnded={triggerNext} 
+                  time={msg.time!} 
+                />
               )}
 
               {msg.type === 'audio' && (
