@@ -713,11 +713,14 @@ const PresellScreen = ({ onStart }: { onStart: () => void }) => {
     });
 
     // 2. Play silent audio as backup
-    const silentAudio = new Audio('https://raw.githubusercontent.com/anars/blank-audio/master/250-milliseconds-of-silence.mp3');
-    silentAudio.play().then(() => {
-      silentAudio.pause();
-      console.log("Audio context fully unlocked");
-    }).catch(e => console.log("Audio unlock failed:", e));
+    if (!(window as any)._silentAudio) {
+      const silentAudio = new Audio('https://raw.githubusercontent.com/anars/blank-audio/master/250-milliseconds-of-silence.mp3');
+      silentAudio.loop = true; // Mantém tocando no fundo invisível
+      silentAudio.play().then(() => {
+        console.log("Continuous silent audio context initialized");
+        (window as any)._silentAudio = silentAudio;
+      }).catch(e => console.log("Audio continuous unlock failed:", e));
+    }
 
     // 3. Resume AudioContext
     const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
@@ -1304,6 +1307,7 @@ const AudioMessage = ({ sender, audioSrc, audioDuration, isZidane, autoPlay, onE
 
     const playAudio = async () => {
       try {
+        await new Promise(r => setTimeout(r, 600)); // Espera o 'plim' da msg acabar
         await audio.play();
         setIsPlaying(true);
       } catch (e) {
@@ -1316,7 +1320,7 @@ const AudioMessage = ({ sender, audioSrc, audioDuration, isZidane, autoPlay, onE
           } catch (retryError) {
             console.log("Audio still blocked after retry");
           }
-        }, 500);
+        }, 800);
       }
     };
 
